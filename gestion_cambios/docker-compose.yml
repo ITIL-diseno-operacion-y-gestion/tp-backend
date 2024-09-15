@@ -1,0 +1,14 @@
+services:
+  cambios:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: cambios
+    container_name: cambios
+    ports:
+      - "5003:5003"
+    volumes:
+      - .:/app
+    command: "/bin/bash"
+    stdin_open: true
+    tty: true
