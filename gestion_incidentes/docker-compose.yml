@@ -1,0 +1,14 @@
+services:
+  incidentes:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: incidentes
+    container_name: incidentes
+    ports:
+      - "5001:5001"
+    volumes:
+      - .:/app
+    command: "/bin/bash"
+    stdin_open: true
+    tty: true
