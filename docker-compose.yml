@@ -1,0 +1,60 @@
+services:
+  problemas:
+    build:
+      context: ./gestion_problemas
+      dockerfile: Dockerfile
+    image: problemas
+    container_name: problemas
+    ports:
+      - "5002:5002"
+    volumes:
+      - ./gestion_problemas:/app
+    command: "python manage.py runserver 0.0.0.0:5002"
+    stdin_open: true
+    tty: true
+  
+  incidentes:
+    build:
+      context: ./gestion_incidentes
+      dockerfile: Dockerfile
+    image: incidentes
+    container_name: incidentes
+    ports:
+      - "5001:5001"
+    volumes:
+      - ./gestion_incidentes:/app
+    command: "python manage.py runserver 0.0.0.0:5001"
+    stdin_open: true
+    tty: true
+  
+  configuracion:
+    build:
+      context: ./gestion_configuracion
+      dockerfile: Dockerfile
+    image: configuracion
+    container_name: configuracion
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./gestion_configuracion:/app
+    command: "python manage.py runserver 0.0.0.0:5000"
+    stdin_open: true
+    tty: true
+
+  cambios:
+    build:
+      context: ./gestion_cambios
+      dockerfile: Dockerfile
+    image: cambios
+    container_name: cambios
+    ports:
+      - "5003:5003"
+    volumes:
+      - ./gestion_cambios:/app
+    command: "python manage.py runserver 0.0.0.0:5003"
+    stdin_open: true
+    tty: true
+
+networks:
+  api-local:
+    name: api-local
