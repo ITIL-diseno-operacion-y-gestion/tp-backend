@@ -1,0 +1,14 @@
+services:
+  problemas:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: problemas
+    container_name: problemas
+    ports:
+      - "5002:5002"
+    volumes:
+      - .:/app
+    command: "/bin/bash"
+    stdin_open: true
+    tty: true
