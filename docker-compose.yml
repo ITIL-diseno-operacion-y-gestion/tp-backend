@@ -1,60 +1,29 @@
 services:
-  problemas:
+  api:
     build:
-      context: ./gestion_problemas
+      context: .
       dockerfile: Dockerfile
-    image: problemas
-    container_name: problemas
+    image: api
+    container_name: api
     ports:
-      - "5002:5002"
+      - 8000:8000
     volumes:
-      - ./gestion_problemas:/app
-    command: "python manage.py runserver 0.0.0.0:5002"
+      - .:/api
+    command: "/bin/bash"
     stdin_open: true
     tty: true
-  
-  incidentes:
-    build:
-      context: ./gestion_incidentes
-      dockerfile: Dockerfile
-    image: incidentes
-    container_name: incidentes
-    ports:
-      - "5001:5001"
-    volumes:
-      - ./gestion_incidentes:/app
-    command: "python manage.py runserver 0.0.0.0:5001"
-    stdin_open: true
-    tty: true
-  
-  configuracion:
-    build:
-      context: ./gestion_configuracion
-      dockerfile: Dockerfile
-    image: configuracion
-    container_name: configuracion
-    ports:
-      - "5000:5000"
-    volumes:
-      - ./gestion_configuracion:/app
-    command: "python manage.py runserver 0.0.0.0:5000"
-    stdin_open: true
-    tty: true
+    environment:
+      PORT: 8000
+      TEST_DB_URL: "postgresql://postgres:example@test_db:5432/postgres"
+    depends_on:
+      - test_db
 
-  cambios:
-    build:
-      context: ./gestion_cambios
-      dockerfile: Dockerfile
-    image: cambios
-    container_name: cambios
-    ports:
-      - "5003:5003"
-    volumes:
-      - ./gestion_cambios:/app
-    command: "python manage.py runserver 0.0.0.0:5003"
-    stdin_open: true
-    tty: true
+  test_db:
+    image: postgres
+    container_name: test_db
+    environment:
+      POSTGRES_PASSWORD: example
 
 networks:
-  api-local:
-    name: api-local
+  default:
+    name: localdev
