@@ -1,2 +1,2 @@
 #!/bin/bash
-fastapi run src/api.py
+fastapi run api/main.py
