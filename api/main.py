@@ -19,9 +19,9 @@ app.include_router(problemas.router)
 app.include_router(cambios.router)
 
 
-@app.on_event("startup")
-def on_startup():
-    init_db()
+# @app.on_event("startup")
+# def on_startup():
+#     init_db()
 
 
 # @app.get("/heroes")
