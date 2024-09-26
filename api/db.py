@@ -1,14 +1,14 @@
-# from os import getenv
-# from sqlmodel import create_engine, SQLModel, Session
+from os import getenv
+from sqlmodel import create_engine, SQLModel, Session
 
-# DATABASE_URL = getenv("TEST_DB_URL")
-# engine = create_engine(DATABASE_URL, echo=True)
-
-
-# def init_db():
-#     SQLModel.metadata.create_all(engine)
+DATABASE_URL = getenv("TEST_DB_URL")
+engine = create_engine(DATABASE_URL, echo=True)
 
 
-# def get_session():
-#     with Session(engine) as session:
-#         yield session
+def init_db():
+    SQLModel.metadata.create_all(engine)
+
+
+def get_session():
+    with Session(engine) as session:
+        yield session
