@@ -8,7 +8,7 @@ from sqlmodel import SQLModel
 from alembic import context
 from api.modelo import *
 
-DATABASE_URL = getenv("TEST_DB_URL")
+DATABASE_URL = getenv("DB_URL")
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

@@ -14,7 +14,7 @@ services:
     tty: true
     environment:
       PORT: 8000
-      TEST_DB_URL: "postgresql://postgres:example@test_db:5432/postgres"
+      DB_URL: "postgresql://postgres:example@test_db:5432/postgres"
     depends_on:
       - test_db
 
