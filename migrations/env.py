@@ -1,5 +1,4 @@
 from logging.config import fileConfig
-from os import getenv
 
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
@@ -7,8 +6,7 @@ from sqlmodel import SQLModel
 
 from alembic import context
 from api.modelo import *
-
-DATABASE_URL = getenv("DB_URL")
+from api.settings import DATABASE_URL
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

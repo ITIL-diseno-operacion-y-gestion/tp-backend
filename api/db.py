@@ -1,7 +1,6 @@
-from os import getenv
+from .settings import DATABASE_URL
 from sqlmodel import create_engine, SQLModel, Session
 
-DATABASE_URL = getenv("DB_URL")
 engine = create_engine(DATABASE_URL, echo=True)
 
 
