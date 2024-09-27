@@ -32,5 +32,5 @@ def upgrade() -> None:
 
 
 def downgrade() -> None:
-    op.drop_table("account")
+    op.drop_table("usuarios")
     pass
