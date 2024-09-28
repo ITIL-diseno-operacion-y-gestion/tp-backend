@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
+
 from sqlmodel import Session, select, update
 from ..db import get_session
 from ..modelo.articulo import Articulo
@@ -11,8 +12,10 @@ router = APIRouter(
 
 @router.get("/articulo/{id}")
 def obtener_articulos(id, session: Session = Depends(get_session)):
-    articulos = session.exec(select(Articulo).where(Articulo.id==id).where(Articulo.esta_activo==True)).first()
-    return articulos
+    articulo = session.exec(select(Articulo).where(Articulo.id==id).where(Articulo.esta_activo==True)).first()
+    if not articulo:
+        raise HTTPException(status_code=404, detail="Articulo not found")
+    return articulo
 
 @router.get("/articulos")
 def obtener_articulos(nombre: str | None = None, session: Session = Depends(get_session)):
@@ -25,7 +28,7 @@ def obtener_articulos(nombre: str | None = None, session: Session = Depends(get_
 
 @router.patch("/articulo/{id}")
 def actualizar_articulos(id, articuloUpdate: ArticuloUpdate, session: Session = Depends(get_session)):
-    articuloDb = session.exec(select(Articulo).where(Articulo.id==id).where(Articulo.esta_activo==True)).first()
+    articuloDb = session.exec(select(Articulo).where(Articulo.id==id)).first()
     if not articuloDb:
         raise HTTPException(status_code=404, detail="Articulo not found")
     articuloData = articuloUpdate.model_dump(exclude_unset=True)
