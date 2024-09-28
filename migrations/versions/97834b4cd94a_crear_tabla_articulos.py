@@ -5,16 +5,16 @@ Revises: 3bb62d5a3c22
 Create Date: 2024-09-27 20:52:13.983082
 
 """
+
 from typing import Sequence, Union
 
 from alembic import op
 import sqlalchemy as sa
-import sqlmodel
 
 
 # revision identifiers, used by Alembic.
-revision: str = '97834b4cd94a'
-down_revision: Union[str, None] = '3bb62d5a3c22'
+revision: str = "97834b4cd94a"
+down_revision: Union[str, None] = "3bb62d5a3c22"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 

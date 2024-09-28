@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 
-from sqlmodel import Session, select, update
+from sqlmodel import Session, select
 from ..db import get_session
 from ..modelo.articulo import Articulo
 from ..modelo.articuloUpdate import ArticuloUpdate
@@ -10,25 +10,38 @@ router = APIRouter(
     tags=["configuracion"],
 )
 
-@router.get("/articulo/{id}")
+
+@router.get("/articulos/{id}")
 def obtener_articulos(id, session: Session = Depends(get_session)):
-    articulo = session.exec(select(Articulo).where(Articulo.id==id).where(Articulo.esta_activo==True)).first()
+    articulo = session.exec(
+        select(Articulo).where(Articulo.id == id).where(Articulo.esta_activo == True)
+    ).first()
     if not articulo:
         raise HTTPException(status_code=404, detail="Articulo not found")
     return articulo
 
+
 @router.get("/articulos")
-def obtener_articulos(nombre: str | None = None, session: Session = Depends(get_session)):
+def obtener_articulos(
+    nombre: str | None = None, session: Session = Depends(get_session)
+):
     if nombre:
         print("nombre: ", nombre)
-        return session.exec(select(Articulo).where(Articulo.nombre==nombre).where(Articulo.esta_activo==True)).all()
+        return session.exec(
+            select(Articulo)
+            .where(Articulo.nombre == nombre)
+            .where(Articulo.esta_activo == True)
+        ).all()
     else:
         print("nombre null")
-        return session.exec(select(Articulo).where(Articulo.esta_activo==True)).all()
+        return session.exec(select(Articulo).where(Articulo.esta_activo == True)).all()
 
-@router.patch("/articulo/{id}")
-def actualizar_articulos(id, articuloUpdate: ArticuloUpdate, session: Session = Depends(get_session)):
-    articuloDb = session.exec(select(Articulo).where(Articulo.id==id)).first()
+
+@router.patch("/articulos/{id}")
+def actualizar_articulos(
+    id, articuloUpdate: ArticuloUpdate, session: Session = Depends(get_session)
+):
+    articuloDb = session.exec(select(Articulo).where(Articulo.id == id)).first()
     if not articuloDb:
         raise HTTPException(status_code=404, detail="Articulo not found")
     articuloData = articuloUpdate.model_dump(exclude_unset=True)
@@ -38,6 +51,7 @@ def actualizar_articulos(id, articuloUpdate: ArticuloUpdate, session: Session = 
     session.refresh(articuloDb)
     return articuloDb
 
+
 @router.post("/articulos")
 def crear_articulo(articulo: Articulo, session: Session = Depends(get_session)):
     articulo.esta_activo = True
@@ -46,9 +60,10 @@ def crear_articulo(articulo: Articulo, session: Session = Depends(get_session)):
     session.refresh(articulo)
     return articulo
 
+
 @router.delete("/articulos/{id}")
 def crear_articulo(id, session: Session = Depends(get_session)):
-    articulo = session.exec(select(Articulo).where(Articulo.id==id)).first()
+    articulo = session.exec(select(Articulo).where(Articulo.id == id)).first()
     if not articulo:
         raise HTTPException(status_code=404, detail="Articulo not found")
     articulo.esta_activo = False

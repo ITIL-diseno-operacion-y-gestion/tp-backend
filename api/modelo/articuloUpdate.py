@@ -1,5 +1,4 @@
-from typing import Optional
-from sqlmodel import SQLModel, Field
+from sqlmodel import SQLModel
 
 
 class ArticuloUpdate(SQLModel):
