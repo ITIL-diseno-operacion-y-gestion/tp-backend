@@ -12,7 +12,7 @@ router = APIRouter(
 
 
 @router.get("/articulos/{id}")
-def obtener_articulos(id, session: Session = Depends(get_session)):
+def obtener_articulo_por_id(id, session: Session = Depends(get_session)):
     articulo = session.exec(
         select(Articulo).where(Articulo.id == id).where(Articulo.esta_activo == True)
     ).first()
@@ -38,7 +38,7 @@ def obtener_articulos(
 
 
 @router.patch("/articulos/{id}")
-def actualizar_articulos(
+def actualizar_articulo(
     id, articuloUpdate: ArticuloUpdate, session: Session = Depends(get_session)
 ):
     articuloDb = session.exec(select(Articulo).where(Articulo.id == id)).first()
@@ -54,6 +54,7 @@ def actualizar_articulos(
 
 @router.post("/articulos")
 def crear_articulo(articulo: Articulo, session: Session = Depends(get_session)):
+    articulo.id = None
     articulo.esta_activo = True
     session.add(articulo)
     session.commit()
@@ -62,7 +63,7 @@ def crear_articulo(articulo: Articulo, session: Session = Depends(get_session)):
 
 
 @router.delete("/articulos/{id}")
-def crear_articulo(id, session: Session = Depends(get_session)):
+def dar_de_baja_articulo(id, session: Session = Depends(get_session)):
     articulo = session.exec(select(Articulo).where(Articulo.id == id)).first()
     if not articulo:
         raise HTTPException(status_code=404, detail="Articulo not found")
