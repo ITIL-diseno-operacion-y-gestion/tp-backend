@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
+from datetime import datetime
 
 from sqlmodel import Session, select
 from ..db import get_session
@@ -56,6 +57,7 @@ def actualizar_articulo(
 def crear_articulo(articulo: Articulo, session: Session = Depends(get_session)):
     articulo.id = None
     articulo.esta_activo = True
+    articulo.fecha_de_alta = datetime.now()
     session.add(articulo)
     session.commit()
     session.refresh(articulo)
