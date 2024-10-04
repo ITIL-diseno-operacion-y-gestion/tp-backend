@@ -16,3 +16,17 @@ class Articulo(SQLModel, table=True):
     fecha_de_alta: str
     relacion_items: str
     esta_activo: bool
+
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "nombre": self.nombre,
+            "descripcion": self.descripcion,
+            "titular": self.titular,
+            "tipo": self.tipo,
+            "info_fabricacion": self.info_fabricacion,
+            "version": self.version,
+            "localizacion": self.localizacion,
+            "fecha_de_alta": self.fecha_de_alta,
+        }

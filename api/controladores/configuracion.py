@@ -4,6 +4,7 @@ from datetime import datetime
 from sqlmodel import Session, select
 from ..db import get_session
 from ..modelo.articulo import Articulo
+from ..modelo.audit import Audit
 from ..modelo.articuloUpdate import ArticuloUpdate
 
 router = APIRouter(
@@ -38,11 +39,24 @@ def obtener_articulos(
         return session.exec(select(Articulo).where(Articulo.esta_activo == True)).all()
 
 
+def registrar_modificacion(articulo_orig, articulo, accion, session):
+    audit = Audit()
+    audit.id_articulo = articulo.id
+    audit.fecha = datetime.now()
+    audit.accion = accion
+    if articulo_orig is not None:
+        audit.estado_anterior = articulo_orig.to_dict()
+    audit.estado_nuevo = articulo.to_dict()
+    print("audit: ", audit)
+    #session.add(audit)
+    #session.commit()
+
 @router.patch("/articulos/{id}")
 def actualizar_articulo(
     id, articuloUpdate: ArticuloUpdate, session: Session = Depends(get_session)
 ):
     articuloDb = session.exec(select(Articulo).where(Articulo.id == id)).first()
+    articulo_orig = articuloDb
     if not articuloDb:
         raise HTTPException(status_code=404, detail="Articulo not found")
     articuloData = articuloUpdate.model_dump(exclude_unset=True)
@@ -50,6 +64,7 @@ def actualizar_articulo(
     session.add(articuloDb)
     session.commit()
     session.refresh(articuloDb)
+    registrar_modificacion(articulo_orig, articuloDb, "modificacion", session)
     return articuloDb
 
 
@@ -61,16 +76,19 @@ def crear_articulo(articulo: Articulo, session: Session = Depends(get_session)):
     session.add(articulo)
     session.commit()
     session.refresh(articulo)
+    registrar_modificacion(None, articulo, "creacion", session)
     return articulo
 
 
 @router.delete("/articulos/{id}")
 def dar_de_baja_articulo(id, session: Session = Depends(get_session)):
     articulo = session.exec(select(Articulo).where(Articulo.id == id)).first()
+    articulo_orig = articulo
     if not articulo:
         raise HTTPException(status_code=404, detail="Articulo not found")
     articulo.esta_activo = False
     session.add(articulo)
     session.commit()
     session.refresh(articulo)
+    registrar_modificacion(articulo_orig, articulo, "borrado", session)
     return articulo
