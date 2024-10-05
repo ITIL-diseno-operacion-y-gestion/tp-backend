@@ -4,8 +4,6 @@ from datetime import datetime
 from sqlmodel import Session, select
 from ..db import get_session
 from ..modelo.articulo import Articulo
-from ..modelo.audit import Audit
-from ..modelo.articuloUpdate import ArticuloUpdate
 
 router = APIRouter(
     prefix="/configuracion",
@@ -39,33 +37,33 @@ def obtener_articulos(
         return session.exec(select(Articulo).where(Articulo.esta_activo == True)).all()
 
 
-def registrar_modificacion(articulo_orig, articulo, accion, session):
-    audit = Audit()
-    audit.id_articulo = articulo.id
-    audit.fecha = datetime.now()
-    audit.accion = accion
-    if articulo_orig is not None:
-        audit.estado_anterior = articulo_orig.to_dict()
-    audit.estado_nuevo = articulo.to_dict()
-    print("audit: ", audit)
-    #session.add(audit)
-    #session.commit()
+# def registrar_modificacion(articulo_orig, articulo, accion, session):
+#     audit = Audit()
+#     audit.id_articulo = articulo.id
+#     audit.fecha = datetime.now()
+#     audit.accion = accion
+#     if articulo_orig is not None:
+#         audit.estado_anterior = articulo_orig.to_dict()
+#     audit.estado_nuevo = articulo.to_dict()
+#     print("audit: ", audit)
+#     #session.add(audit)
+#     #session.commit()
 
-@router.patch("/articulos/{id}")
-def actualizar_articulo(
-    id, articuloUpdate: ArticuloUpdate, session: Session = Depends(get_session)
-):
-    articuloDb = session.exec(select(Articulo).where(Articulo.id == id)).first()
-    articulo_orig = articuloDb
-    if not articuloDb:
-        raise HTTPException(status_code=404, detail="Articulo not found")
-    articuloData = articuloUpdate.model_dump(exclude_unset=True)
-    articuloDb.sqlmodel_update(articuloData)
-    session.add(articuloDb)
-    session.commit()
-    session.refresh(articuloDb)
-    registrar_modificacion(articulo_orig, articuloDb, "modificacion", session)
-    return articuloDb
+# @router.patch("/articulos/{id}")
+# def actualizar_articulo(
+#     id, articuloUpdate: ArticuloUpdate, session: Session = Depends(get_session)
+# ):
+#     articuloDb = session.exec(select(Articulo).where(Articulo.id == id)).first()
+#     articulo_orig = articuloDb
+#     if not articuloDb:
+#         raise HTTPException(status_code=404, detail="Articulo not found")
+#     articuloData = articuloUpdate.model_dump(exclude_unset=True)
+#     articuloDb.sqlmodel_update(articuloData)
+#     session.add(articuloDb)
+#     session.commit()
+#     session.refresh(articuloDb)
+#     registrar_modificacion(articulo_orig, articuloDb, "modificacion", session)
+#     return articuloDb
 
 
 @router.post("/articulos")
@@ -76,7 +74,7 @@ def crear_articulo(articulo: Articulo, session: Session = Depends(get_session)):
     session.add(articulo)
     session.commit()
     session.refresh(articulo)
-    registrar_modificacion(None, articulo, "creacion", session)
+    # registrar_modificacion(None, articulo, "creacion", session)
     return articulo
 
 

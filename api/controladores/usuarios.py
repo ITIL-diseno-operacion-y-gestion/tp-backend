@@ -17,6 +17,7 @@ def obtener_usuarios(session: Session = Depends(get_session)):
 
 @router.post("")
 def crear_usuario(usuario: Usuario, session: Session = Depends(get_session)):
+    usuario.id = None
     session.add(usuario)
     session.commit()
     session.refresh(usuario)

@@ -17,7 +17,6 @@ class Articulo(SQLModel, table=True):
     relacion_items: str
     esta_activo: bool
 
-
     def to_dict(self):
         return {
             "id": self.id,
