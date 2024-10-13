@@ -26,7 +26,7 @@ def crear_problema(
     ).first()
     if not usuario:
         raise HTTPException(
-            status_code=404, detail=f"Usuario con id {problema.id_usuario} no existe"
+            status_code=404, detail=f"Usuario con id {problema.id_usuario} no encontrado"
         )
 
     session.add(problema)
