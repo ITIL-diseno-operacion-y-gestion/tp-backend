@@ -1,31 +1,33 @@
 from typing import Optional
 from sqlmodel import SQLModel, Field
 from enum import Enum
+from datetime import datetime
 
 
 class PrioridadDeProblema(Enum):
-    MUY_BAJA = "muy baja"
     BAJA = "baja"
     MEDIA = "media"
     ALTA = "alta"
-    CRITICA = "critica"
 
 
 class EstadoDeProblema(Enum):
     DETECTADO = "detectado"
-    EN_ANALISIS = "en analisis"
+    ANALIZANDOSE = "analizandose"
     ASIGNADO = "asignado"
     RESUELTO = "resuelto"
     CERRADO = "cerrado"
 
 
-class Problema(SQLModel, table=True):
+class ProblemaForm(SQLModel):
+    id_usuario: int = Field(default=None, foreign_key="usuarios.id")
+    sintomas: str
+    prioridad: PrioridadDeProblema
+    categoria: str
+    estado: EstadoDeProblema
+
+
+class Problema(ProblemaForm, table=True):
     __tablename__ = "problemas"
 
     id: Optional[int] = Field(default=None, primary_key=True)
-    id_usuario: Optional[int] = Field(default=None, foreign_key="usuarios.id")
-    fecha_de_deteccion: str
-    sintomas: str
-    prioridad: str
-    categoria: str
-    estado: str
+    fecha_de_deteccion: datetime = Field(default=datetime.now())

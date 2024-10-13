@@ -1,8 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session, select
 from ..db import get_session
-from ..modelo.problema import Problema
-from datetime import datetime
+from ..modelo.problema import Problema, ProblemaForm
 from ..modelo.usuario import Usuario
 
 router = APIRouter(
@@ -18,10 +17,10 @@ def obtener_problemas(session: Session = Depends(get_session)):
 
 
 @router.post("")
-def crear_problema(problema: Problema, session: Session = Depends(get_session)):
-    problema.id = None
-    problema.fecha_de_deteccion = datetime.now()
-
+def crear_problema(
+    problema_form: ProblemaForm, session: Session = Depends(get_session)
+):
+    problema = Problema.model_validate(problema_form)
     usuario = session.exec(
         select(Usuario).where(Usuario.id == problema.id_usuario)
     ).first()
