@@ -28,9 +28,7 @@ def upgrade() -> None:
         type_=sa.DateTime,
         postgresql_using="fecha_de_alta::timestamp",
     )
-    pass
 
 
 def downgrade() -> None:
     op.alter_column("articulos", "fecha_de_alta", type_=sa.String(50))
-    pass

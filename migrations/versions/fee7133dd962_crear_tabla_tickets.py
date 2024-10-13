@@ -35,9 +35,7 @@ def upgrade() -> None:
         sa.Column("categoria", sa.String(50), nullable=False),
         sa.Column("informacion_adicional", sa.String(50), nullable=False),
     )
-    pass
 
 
 def downgrade() -> None:
     op.drop_table("tickets")
-    pass

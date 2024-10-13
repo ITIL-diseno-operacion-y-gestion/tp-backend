@@ -34,9 +34,7 @@ def upgrade() -> None:
         sa.Column("relacion_items", sa.String(50), nullable=False),
         sa.Column("esta_activo", sa.BOOLEAN, nullable=False),
     )
-    pass
 
 
 def downgrade() -> None:
     op.drop_table("articulos")
-    pass
