@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session, select
 from ..db import get_session
-from ..modelo.incidente import Incidente
+from ..modelo.incidente import Incidente, IncidenteForm
 from ..modelo.usuario import Usuario
 from datetime import datetime
 
@@ -18,16 +18,14 @@ def obtener_incidentes(session: Session = Depends(get_session)):
 
 
 @router.post("")
-def crear_incidente(incidente: Incidente, session: Session = Depends(get_session)):
-    incidente.id = None
-    incidente.fecha_de_alta = datetime.now()
-
+def crear_incidente(incidente_form: IncidenteForm, session: Session = Depends(get_session)):
+    incidente = Incidente.model_validate(incidente_form)
     usuario = session.exec(
         select(Usuario).where(Usuario.id == incidente.id_usuario)
     ).first()
     if not usuario:
         raise HTTPException(
-            status_code=404, detail=f"Usuario con id {incidente.id_usuario} no existe"
+            status_code=404, detail=f"Usuario con id {incidente.id_usuario} no encontrado"
         )
 
     session.add(incidente)
