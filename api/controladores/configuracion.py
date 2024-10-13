@@ -1,9 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException
-from datetime import datetime
 
 from sqlmodel import Session, select
 from ..db import get_session
-from ..modelo.articulo import Articulo
+from ..modelo.articulo import Articulo, ArticuloForm
 
 router = APIRouter(
     prefix="/configuracion",
@@ -17,7 +16,9 @@ def obtener_articulo_por_id(id, session: Session = Depends(get_session)):
         select(Articulo).where(Articulo.id == id).where(Articulo.esta_activo == True)
     ).first()
     if not articulo:
-        raise HTTPException(status_code=404, detail="Articulo not found")
+        raise HTTPException(
+            status_code=404, detail=f"Articulo con id {id} no encontrado"
+        )
     return articulo
 
 
@@ -25,16 +26,11 @@ def obtener_articulo_por_id(id, session: Session = Depends(get_session)):
 def obtener_articulos(
     nombre: str | None = None, session: Session = Depends(get_session)
 ):
+    query = select(Articulo).where(Articulo.esta_activo == True)
     if nombre:
-        print("nombre: ", nombre)
-        return session.exec(
-            select(Articulo)
-            .where(Articulo.nombre == nombre)
-            .where(Articulo.esta_activo == True)
-        ).all()
-    else:
-        print("nombre null")
-        return session.exec(select(Articulo).where(Articulo.esta_activo == True)).all()
+        query = query.where(Articulo.nombre == nombre)
+    articulos = session.exec(query).all()
+    return articulos
 
 
 # def registrar_modificacion(articulo_orig, articulo, accion, session):
@@ -67,10 +63,10 @@ def obtener_articulos(
 
 
 @router.post("/articulos")
-def crear_articulo(articulo: Articulo, session: Session = Depends(get_session)):
-    articulo.id = None
-    articulo.esta_activo = True
-    articulo.fecha_de_alta = datetime.now()
+def crear_articulo(
+    articulo_form: ArticuloForm, session: Session = Depends(get_session)
+):
+    articulo = Articulo.model_validate(articulo_form)
     session.add(articulo)
     session.commit()
     session.refresh(articulo)
@@ -79,14 +75,15 @@ def crear_articulo(articulo: Articulo, session: Session = Depends(get_session)):
 
 
 @router.delete("/articulos/{id}")
-def dar_de_baja_articulo(id, session: Session = Depends(get_session)):
+def dar_de_baja_articulo_por_id(id, session: Session = Depends(get_session)):
     articulo = session.exec(select(Articulo).where(Articulo.id == id)).first()
-    articulo_orig = articulo
     if not articulo:
-        raise HTTPException(status_code=404, detail="Articulo not found")
+        raise HTTPException(
+            status_code=404, detail=f"Articulo con id {id} no encontrado"
+        )
     articulo.esta_activo = False
     session.add(articulo)
     session.commit()
     session.refresh(articulo)
-    registrar_modificacion(articulo_orig, articulo, "borrado", session)
+    # registrar_modificacion(articulo_orig, articulo, "borrado", session)
     return articulo

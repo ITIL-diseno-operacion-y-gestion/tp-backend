@@ -1,5 +1,6 @@
 from typing import Optional
 from sqlmodel import SQLModel, Field
+from datetime import datetime
 
 
 class ArticuloUpdate(SQLModel):
@@ -13,6 +14,17 @@ class ArticuloUpdate(SQLModel):
     relacion_items: str | None = None
 
 
+class ArticuloForm(SQLModel):
+    nombre: str
+    descripcion: str
+    titular: str
+    tipo: str
+    info_fabricacion: str
+    version: int
+    localizacion: str
+    relacion_items: str
+
+
 class Articulo(SQLModel, table=True):
     __tablename__ = "articulos"
 
@@ -24,9 +36,9 @@ class Articulo(SQLModel, table=True):
     info_fabricacion: str
     version: int
     localizacion: str
-    fecha_de_alta: str
+    fecha_de_alta: datetime = Field(default=datetime.now())
     relacion_items: str
-    esta_activo: bool
+    esta_activo: bool = Field(default=True)
 
     def to_dict(self):
         return {
