@@ -33,6 +33,33 @@ def obtener_articulos(
     return articulos
 
 
+@router.post("/articulos")
+def crear_articulo(
+    articulo_form: ArticuloForm, session: Session = Depends(get_session)
+):
+    articulo = Articulo.model_validate(articulo_form)
+    session.add(articulo)
+    session.commit()
+    session.refresh(articulo)
+    # registrar_modificacion(None, articulo, "creacion", session)
+    return articulo
+
+
+@router.delete("/articulos/{id}")
+def dar_de_baja_articulo_por_id(id, session: Session = Depends(get_session)):
+    articulo = session.exec(select(Articulo).where(Articulo.id == id)).first()
+    if not articulo:
+        raise HTTPException(
+            status_code=404, detail=f"Articulo con id {id} no encontrado"
+        )
+    articulo.esta_activo = False
+    session.add(articulo)
+    session.commit()
+    session.refresh(articulo)
+    # registrar_modificacion(articulo_orig, articulo, "borrado", session)
+    return articulo
+
+
 # def registrar_modificacion(articulo_orig, articulo, accion, session):
 #     audit = Audit()
 #     audit.id_articulo = articulo.id
@@ -60,30 +87,3 @@ def obtener_articulos(
 #     session.refresh(articuloDb)
 #     registrar_modificacion(articulo_orig, articuloDb, "modificacion", session)
 #     return articuloDb
-
-
-@router.post("/articulos")
-def crear_articulo(
-    articulo_form: ArticuloForm, session: Session = Depends(get_session)
-):
-    articulo = Articulo.model_validate(articulo_form)
-    session.add(articulo)
-    session.commit()
-    session.refresh(articulo)
-    # registrar_modificacion(None, articulo, "creacion", session)
-    return articulo
-
-
-@router.delete("/articulos/{id}")
-def dar_de_baja_articulo_por_id(id, session: Session = Depends(get_session)):
-    articulo = session.exec(select(Articulo).where(Articulo.id == id)).first()
-    if not articulo:
-        raise HTTPException(
-            status_code=404, detail=f"Articulo con id {id} no encontrado"
-        )
-    articulo.esta_activo = False
-    session.add(articulo)
-    session.commit()
-    session.refresh(articulo)
-    # registrar_modificacion(articulo_orig, articulo, "borrado", session)
-    return articulo
