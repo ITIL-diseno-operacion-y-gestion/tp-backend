@@ -4,7 +4,7 @@ from datetime import datetime
 from enum import Enum
 
 
-class TipoDeArticulo(Enum):
+class Tipo(Enum):
     HARDWARE = "hardware"
     SOFTWARE = "software"
     NETWORK = "network"
@@ -18,9 +18,9 @@ class ArticuloForm(SQLModel):
     nombre: str
     descripcion: str
     titular: str
-    tipo: TipoDeArticulo
+    tipo: Tipo
     info_fabricacion: str
-    version: Optional[int]
+    version: Optional[float] = Field(default=None, nullable=True)
     localizacion: str
     relacion_items: str
 

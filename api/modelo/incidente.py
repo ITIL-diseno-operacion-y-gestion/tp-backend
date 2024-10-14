@@ -4,7 +4,7 @@ from datetime import datetime
 from enum import Enum
 
 
-class FormaDeNotificacionDeIncidente(Enum):
+class FormaDeNotificacion(Enum):
     LLAMADA_TELEFONICA = "llamada telefonica"
     EMAIL = "email"
     SMS = "sms"
@@ -12,13 +12,13 @@ class FormaDeNotificacionDeIncidente(Enum):
     CHAT_EN_VIVO = "chat en vivo"
 
 
-class PrioridadDeIncidente(Enum):
+class Prioridad(Enum):
     BAJA = "baja"
     MEDIA = "media"
     ALTA = "alta"
 
 
-class CategoriaDeIncidente(Enum):
+class Categoria(Enum):
     DE_SEGURIDAD = "de seguridad"
     TECNICO = "tecnico"
     DE_DISPONIBILIDAD = "de disponibilidad"
@@ -28,12 +28,12 @@ class CategoriaDeIncidente(Enum):
 
 class IncidenteForm(SQLModel):
     id_usuario: int = Field(default=None, foreign_key="usuarios.id")
-    forma_de_notificacion: FormaDeNotificacionDeIncidente
+    forma_de_notificacion: FormaDeNotificacion
     reportador: str
     usuarios_afectados: str
     servicios_afectados: str
-    prioridad: PrioridadDeIncidente
-    categoria: CategoriaDeIncidente
+    prioridad: Prioridad
+    categoria: Categoria
     informacion_adicional: str
 
 

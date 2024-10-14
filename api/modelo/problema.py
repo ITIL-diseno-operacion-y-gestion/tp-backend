@@ -5,13 +5,13 @@ from datetime import datetime
 # from .incidente import Incidente
 
 
-class PrioridadDeProblema(Enum):
+class Prioridad(Enum):
     BAJA = "baja"
     MEDIA = "media"
     ALTA = "alta"
 
 
-class EstadoDeProblema(Enum):
+class Estado(Enum):
     DETECTADO = "detectado"
     ANALIZANDOSE = "analizandose"
     ASIGNADO = "asignado"
@@ -19,7 +19,7 @@ class EstadoDeProblema(Enum):
     CERRADO = "cerrado"
 
 
-class CategoriaDeProblema(Enum):
+class Categoria(Enum):
     DE_SEGURIDAD = "de seguridad"
     TECNICO = "tecnico"
     DE_DISPONIBILIDAD = "de disponibilidad"
@@ -30,9 +30,9 @@ class CategoriaDeProblema(Enum):
 class ProblemaForm(SQLModel):
     id_usuario: int = Field(default=None, foreign_key="usuarios.id")
     sintomas: str
-    prioridad: PrioridadDeProblema
-    categoria: CategoriaDeProblema
-    estado: EstadoDeProblema
+    prioridad: Prioridad
+    categoria: Categoria
+    estado: Estado
 
 
 # class ProblemaIncidenteLink(SQLModel, table=True):
