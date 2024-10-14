@@ -11,6 +11,7 @@ class FormaDeNotificacionDeIncidente(Enum):
     FORMULARIO_WEB = "formulario web"
     CHAT_EN_VIVO = "chat en vivo"
 
+
 class PrioridadDeIncidente(Enum):
     BAJA = "baja"
     MEDIA = "media"
@@ -24,6 +25,7 @@ class CategoriaDeIncidente(Enum):
     DE_DATOS = "de datos"
     LEGAL = "legal"
 
+
 class IncidenteForm(SQLModel):
     id_usuario: int = Field(default=None, foreign_key="usuarios.id")
     forma_de_notificacion: FormaDeNotificacionDeIncidente
@@ -33,6 +35,7 @@ class IncidenteForm(SQLModel):
     prioridad: PrioridadDeIncidente
     categoria: CategoriaDeIncidente
     informacion_adicional: str
+
 
 class Incidente(IncidenteForm, table=True):
     __tablename__ = "incidentes"

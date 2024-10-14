@@ -3,6 +3,7 @@ from sqlmodel import SQLModel, Field
 from datetime import datetime
 from enum import Enum
 
+
 class TipoDeArticulo(Enum):
     HARDWARE = "hardware"
     SOFTWARE = "software"
@@ -11,6 +12,7 @@ class TipoDeArticulo(Enum):
     INSTALACION = "instalacion"
     PROVEEDOR = "proveedor"
     SERVICIO_TECNICO = "servicio tecnico"
+
 
 class ArticuloForm(SQLModel):
     nombre: str
