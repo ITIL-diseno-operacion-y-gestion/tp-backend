@@ -1,8 +1,9 @@
-from typing import Optional
-from sqlmodel import SQLModel, Field  # , Relationship
+from typing import Optional, List
+from sqlmodel import SQLModel, Field, Relationship
 from enum import Enum
 from datetime import datetime
-# from .incidente import Incidente
+from .problema_incidente_link import ProblemaIncidenteLink
+from .incidente import Incidente
 
 
 class Prioridad(Enum):
@@ -27,28 +28,28 @@ class Categoria(Enum):
     LEGAL = "legal"
 
 
-class ProblemaForm(SQLModel):
-    id_usuario: int = Field(default=None, foreign_key="usuarios.id")
+class ProblemaBase(SQLModel):
     sintomas: str
     prioridad: Prioridad
     categoria: Categoria
     estado: Estado
 
 
-# class ProblemaIncidenteLink(SQLModel, table=True):
-#     __tablename__ = "problemas_incidentes"
-
-#     id_problema: Optional[int] = Field(
-#         default=None, foreign_key="problemas.id", primary_key=True
-#     )
-#     id_incidente: Optional[int] = Field(
-#         default=None, foreign_key="incidentes.id", primary_key=True
-#     )
+class ProblemaForm(ProblemaBase):
+    ids_incidentes: List[int]
 
 
-class Problema(ProblemaForm, table=True):
+class Problema(ProblemaBase, table=True):
     __tablename__ = "problemas"
 
     id: Optional[int] = Field(default=None, primary_key=True)
     fecha_de_deteccion: datetime = Field(default=datetime.now())
-    # incidentes: list[Incidente] = Relationship(link_model=ProblemaIncidenteLink)
+    incidentes: List[Incidente] = Relationship(
+        back_populates="problemas", link_model=ProblemaIncidenteLink
+    )
+
+
+class ProblemaPublico(ProblemaBase):
+    id: Optional[int]
+    fecha_de_deteccion: datetime
+    incidentes: List[Incidente] = []

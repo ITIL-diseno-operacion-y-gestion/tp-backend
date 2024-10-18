@@ -10,6 +10,12 @@ router = APIRouter(
 )
 
 
+@router.get("/{id}")
+def obtener_incidente_por_id(id, session: Session = Depends(get_session)):
+    incidente = session.get_one(Incidente, id)
+    return incidente
+
+
 @router.get("")
 def obtener_incidentes(session: Session = Depends(get_session)):
     incidentes = session.exec(select(Incidente)).all()

@@ -1,7 +1,8 @@
-from typing import Optional
-from sqlmodel import SQLModel, Field
+from typing import Optional, List
+from sqlmodel import SQLModel, Field, Relationship
 from datetime import datetime
 from enum import Enum
+from .problema_incidente_link import ProblemaIncidenteLink
 
 
 class FormaDeNotificacion(Enum):
@@ -42,3 +43,6 @@ class Incidente(IncidenteForm, table=True):
 
     id: Optional[int] = Field(default=None, primary_key=True)
     fecha_de_alta: datetime = Field(default=datetime.now())
+    problemas: List["Problema"] = Relationship(
+        back_populates="incidentes", link_model=ProblemaIncidenteLink
+    )

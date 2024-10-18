@@ -12,13 +12,7 @@ router = APIRouter(
 
 @router.get("/articulos/{id}")
 def obtener_articulo_por_id(id, session: Session = Depends(get_session)):
-    articulo = session.exec(
-        select(Articulo).where(Articulo.id == id).where(Articulo.esta_activo == True)
-    ).first()
-    if not articulo:
-        raise HTTPException(
-            status_code=404, detail=f"Articulo con id {id} no encontrado"
-        )
+    articulo = session.get_one(Articulo, id)
     return articulo
 
 
