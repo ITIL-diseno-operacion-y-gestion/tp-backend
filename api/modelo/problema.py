@@ -1,3 +1,5 @@
+
+from pydantic import BaseModel
 from typing import Optional
 from sqlmodel import SQLModel, Field  # , Relationship
 from enum import Enum
@@ -52,3 +54,9 @@ class Problema(ProblemaForm, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     fecha_de_deteccion: datetime = Field(default=datetime.now())
     # incidentes: list[Incidente] = Relationship(link_model=ProblemaIncidenteLink)
+
+class ProblemaUpdateForm(BaseModel):
+    sintomas: Optional[str] = None
+    prioridad: Optional[Prioridad] = None
+    categoria: Optional[Categoria] = None
+    estado: Optional[Estado] = None
