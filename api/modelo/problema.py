@@ -4,6 +4,7 @@ from enum import Enum
 from datetime import datetime
 from .problema_incidente_link import ProblemaIncidenteLink
 from .incidente import Incidente
+from pydantic import BaseModel
 
 
 class Prioridad(Enum):
@@ -37,6 +38,12 @@ class ProblemaBase(SQLModel):
 
 class ProblemaForm(ProblemaBase):
     ids_incidentes: List[int]
+
+class ProblemaUpdateForm(BaseModel):
+    sintomas: Optional[str] = None
+    prioridad: Optional[Prioridad] = None
+    categoria: Optional[Categoria] = None
+    estado: Optional[Estado] = None
 
 
 class Problema(ProblemaBase, table=True):
