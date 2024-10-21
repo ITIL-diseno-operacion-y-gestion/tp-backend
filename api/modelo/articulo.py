@@ -14,15 +14,26 @@ class Tipo(Enum):
     SERVICIO_TECNICO = "servicio tecnico"
 
 
+class Estado(Enum):
+    PLANEADO = "planeado"
+    ENCARGADO = "encargado"
+    EN_CREACION = "en creacion"
+    EN_PRUEBA = "en prueba"
+    EN_ALMACEN = "en almacen"
+    EN_PRODUCCION = "en produccion"
+    EN_MANTENIMIENTO = "en mantenimiento"
+
+
 class ArticuloForm(SQLModel):
     nombre: str
     descripcion: str
-    titular: str
+    id_titular: int = Field(default=None, foreign_key="usuarios.id")
     tipo: Tipo
     info_fabricacion: str
     version: Optional[float] = Field(default=None, nullable=True)
     localizacion: str
     relacion_items: str
+    estado: Estado
 
 
 class Articulo(ArticuloForm, table=True):
