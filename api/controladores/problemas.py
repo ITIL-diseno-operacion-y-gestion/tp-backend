@@ -39,7 +39,6 @@ def crear_problema(
 def actualizar_problema(
     id, problema_form: ProblemaUpdateForm, session: Session = Depends(get_session)
 ):
-    print("1111")
     problema = None
     try:
         problema = session.get_one(Problema, id)
