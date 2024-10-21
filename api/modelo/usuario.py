@@ -1,6 +1,6 @@
 from typing import Optional
 from sqlmodel import SQLModel, Field
-
+from pydantic import BaseModel
 
 class UsuarioBase(SQLModel):
     nombre: str
@@ -17,6 +17,17 @@ class UsuarioPublico(SQLModel):
     nombre: str
     apellido: str
     email: str
+
+class UsuarioLoginForm(BaseModel):
+    email: Optional[str] = None
+    contrasenia: Optional[str] = None
+
+class UsuarioLoginRespuesta(BaseModel):
+    id: int
+    nombre: str
+    apellido: str
+    email: str
+    token: str
 
 
 class Usuario(UsuarioForm, table=True):

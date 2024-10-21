@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from sqlmodel import Session, select
 from ..db import get_session
-from ..modelo.problema import Problema, ProblemaForm, ProblemaPublico
+from ..modelo.problema import Problema, ProblemaForm, ProblemaUpdateForm, ProblemaPublico
 from ..modelo.incidente import Incidente
 
 router = APIRouter(
@@ -32,6 +32,22 @@ def crear_problema(
     problema = Problema.model_validate(problema_form)
     problema.incidentes = incidentes
 
+    session.add(problema)
+    session.commit()
+    session.refresh(problema)
+    return problema
+
+@router.patch("/{id}")
+def actualizar_problema(
+    id, problema_form: ProblemaUpdateForm, session: Session = Depends(get_session)
+):
+    problema = None
+    try:
+        problema = session.get_one(Problema, id)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Problema not found")
+    problema_nueva_data = problema_form.model_dump(exclude_unset=True)
+    problema.sqlmodel_update(problema_nueva_data)
     session.add(problema)
     session.commit()
     session.refresh(problema)

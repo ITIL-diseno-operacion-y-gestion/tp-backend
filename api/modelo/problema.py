@@ -1,5 +1,7 @@
 from typing import Optional, List
 from sqlmodel import SQLModel, Field, Relationship
+
+from pydantic import BaseModel
 from enum import Enum
 from datetime import datetime
 from .problema_incidente_link import ProblemaIncidenteLink
@@ -53,3 +55,9 @@ class ProblemaPublico(ProblemaBase):
     id: Optional[int]
     fecha_de_deteccion: datetime
     incidentes: List[Incidente] = []
+
+class ProblemaUpdateForm(BaseModel):
+    sintomas: Optional[str] = None
+    prioridad: Optional[Prioridad] = None
+    categoria: Optional[Categoria] = None
+    estado: Optional[Estado] = None
