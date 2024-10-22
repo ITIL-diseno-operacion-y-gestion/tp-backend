@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session, select
 from ..db import get_session
 from ..modelo.problema import Problema, ProblemaForm, ProblemaUpdateForm, ProblemaPublico
@@ -26,9 +26,16 @@ def obtener_problemas(session: Session = Depends(get_session)):
 def crear_problema(
     problema_form: ProblemaForm, session: Session = Depends(get_session)
 ):
+    if len(problema_form.ids_incidentes) < 1:
+        raise HTTPException(status_code=422, detail="Se debe ingresar al menos un incidente")
+    
     incidentes = session.exec(
         select(Incidente).where(Incidente.id.in_(problema_form.ids_incidentes))
     ).all()
+
+    if len(incidentes) != len(problema_form.ids_incidentes):
+        raise HTTPException(status_code=422, detail="Alguno de los incidentes no fue encontrado")
+
     problema = Problema.model_validate(problema_form)
     problema.incidentes = incidentes
 
