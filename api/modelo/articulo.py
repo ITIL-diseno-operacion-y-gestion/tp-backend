@@ -1,7 +1,8 @@
-from typing import Optional
-from sqlmodel import SQLModel, Field
+from typing import Optional, List
+from sqlmodel import SQLModel, Field, Relationship
 from datetime import datetime
 from enum import Enum
+from .articulo_incidente_link import ArticuloIncidenteLink
 
 
 class Tipo(Enum):
@@ -42,3 +43,6 @@ class Articulo(ArticuloForm, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     fecha_de_alta: datetime = Field(default=datetime.now())
     esta_activo: bool = Field(default=True)
+    incidentes_relacionados: List["Incidente"] = Relationship(
+        back_populates="articulos_afectados", link_model=ArticuloIncidenteLink
+    )

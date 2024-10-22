@@ -1,7 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session, select
 from ..db import get_session
-from ..modelo.incidente import Incidente, IncidenteForm
+from ..modelo.incidente import Incidente, IncidenteForm, IncidentePublico
+from ..modelo.articulo import Articulo
 from ..modelo.usuario import Usuario
 
 router = APIRouter(
@@ -10,7 +11,7 @@ router = APIRouter(
 )
 
 
-@router.get("/{id}")
+@router.get("/{id}", response_model=IncidentePublico)
 def obtener_incidente_por_id(id, session: Session = Depends(get_session)):
     incidente = session.get_one(Incidente, id)
     return incidente
@@ -22,19 +23,35 @@ def obtener_incidentes(session: Session = Depends(get_session)):
     return incidentes
 
 
-@router.post("")
+@router.post("", response_model=IncidentePublico)
 def crear_incidente(
     incidente_form: IncidenteForm, session: Session = Depends(get_session)
 ):
-    incidente = Incidente.model_validate(incidente_form)
+    if len(incidente_form.ids_articulos) < 1:
+        raise HTTPException(
+            status_code=422, detail="Se debe ingresar al menos un articulo"
+        )
+
+    articulos = session.exec(
+        select(Articulo).where(Articulo.id.in_(incidente_form.ids_articulos))
+    ).all()
+
+    if len(articulos) != len(incidente_form.ids_articulos):
+        raise HTTPException(
+            status_code=422, detail="Alguno de los articulos no fue encontrado"
+        )
+
     usuario = session.exec(
-        select(Usuario).where(Usuario.id == incidente.id_usuario)
+        select(Usuario).where(Usuario.id == incidente_form.id_usuario)
     ).first()
     if not usuario:
         raise HTTPException(
             status_code=404,
-            detail=f"Usuario con id {incidente.id_usuario} no encontrado",
+            detail=f"Usuario con id {incidente_form.id_usuario} no encontrado",
         )
+
+    incidente = Incidente.model_validate(incidente_form)
+    incidente.articulos_afectados = articulos
 
     session.add(incidente)
     session.commit()
