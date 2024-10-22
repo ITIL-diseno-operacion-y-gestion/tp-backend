@@ -3,6 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session, select
 from ..db import get_session
 from ..modelo.articulo import Articulo, ArticuloForm
+from ..modelo.usuario import Usuario
 
 router = APIRouter(
     prefix="/configuracion",
@@ -31,11 +32,15 @@ def obtener_articulos(
 def crear_articulo(
     articulo_form: ArticuloForm, session: Session = Depends(get_session)
 ):
+    usuario = session.exec(select(Usuario).where(Usuario.id == articulo_form.id_titular)).first()
+    if not usuario:
+        raise HTTPException(
+            status_code=404, detail=f"Usuario con id {articulo_form.id_titular} no encontrado"
+        )
     articulo = Articulo.model_validate(articulo_form)
     session.add(articulo)
     session.commit()
     session.refresh(articulo)
-    # registrar_modificacion(None, articulo, "creacion", session)
     return articulo
 
 
@@ -50,7 +55,6 @@ def dar_de_baja_articulo_por_id(id, session: Session = Depends(get_session)):
     session.add(articulo)
     session.commit()
     session.refresh(articulo)
-    # registrar_modificacion(articulo_orig, articulo, "borrado", session)
     return articulo
 
 
