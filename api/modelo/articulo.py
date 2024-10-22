@@ -1,7 +1,8 @@
-from typing import Optional
-from sqlmodel import SQLModel, Field
+from typing import Optional, List
+from sqlmodel import SQLModel, Field, Relationship
 from datetime import datetime
 from enum import Enum
+from .articulo_incidente_link import ArticuloIncidenteLink
 
 
 class Tipo(Enum):
@@ -14,15 +15,26 @@ class Tipo(Enum):
     SERVICIO_TECNICO = "servicio tecnico"
 
 
+class Estado(Enum):
+    PLANEADO = "planeado"
+    ENCARGADO = "encargado"
+    EN_CREACION = "en creacion"
+    EN_PRUEBA = "en prueba"
+    EN_ALMACEN = "en almacen"
+    EN_PRODUCCION = "en produccion"
+    EN_MANTENIMIENTO = "en mantenimiento"
+
+
 class ArticuloForm(SQLModel):
     nombre: str
     descripcion: str
-    titular: str
+    id_titular: int = Field(default=None, foreign_key="usuarios.id")
     tipo: Tipo
     info_fabricacion: str
     version: Optional[float] = Field(default=None, nullable=True)
     localizacion: str
     relacion_items: str
+    estado: Estado
 
 
 class Articulo(ArticuloForm, table=True):
@@ -31,3 +43,6 @@ class Articulo(ArticuloForm, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     fecha_de_alta: datetime = Field(default=datetime.now())
     esta_activo: bool = Field(default=True)
+    incidentes_relacionados: List["Incidente"] = Relationship(
+        back_populates="articulos_afectados", link_model=ArticuloIncidenteLink
+    )

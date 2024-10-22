@@ -1,7 +1,13 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session, select
 from ..db import get_session
-from ..modelo.usuario import Usuario, UsuarioPublico, UsuarioForm, UsuarioLoginForm, UsuarioLoginRespuesta
+from ..modelo.usuario import (
+    Usuario,
+    UsuarioPublico,
+    UsuarioForm,
+    UsuarioLoginForm,
+    UsuarioLoginRespuesta,
+)
 import secrets
 import string
 
@@ -25,25 +31,31 @@ def crear_usuario(usuario_form: UsuarioForm, session: Session = Depends(get_sess
     session.refresh(usuario)
     return usuario
 
+
 def generar_random_token(length=32):
     characters = string.ascii_letters + string.digits
-    token = ''.join(secrets.choice(characters) for _ in range(length))
+    token = "".join(secrets.choice(characters) for _ in range(length))
     return token
 
+
 @router.post("/login")
-def login_usuario(usuario_form: UsuarioLoginForm, session: Session = Depends(get_session)):
+def login_usuario(
+    usuario_form: UsuarioLoginForm, session: Session = Depends(get_session)
+):
     usuario = session.exec(
-        select(Usuario).where(Usuario.email == usuario_form.email).where(Usuario.contrasenia == usuario_form.contrasenia)
+        select(Usuario)
+        .where(Usuario.email == usuario_form.email)
+        .where(Usuario.contrasenia == usuario_form.contrasenia)
     ).first()
     if not usuario:
         raise HTTPException(
             status_code=404,
-            detail=f"Usuario con email y contraseña enviados no encontrado",
+            detail="Usuario con email y contraseña enviados no encontrado",
         )
     return UsuarioLoginRespuesta(
         id=usuario.id,
         nombre=usuario.nombre,
         apellido=usuario.apellido,
         email=usuario.email,
-        token=generar_random_token()
+        token=generar_random_token(),
     )

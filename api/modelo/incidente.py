@@ -1,7 +1,10 @@
-from typing import Optional
-from sqlmodel import SQLModel, Field
+from typing import Optional, List
+from sqlmodel import SQLModel, Field, Relationship
 from datetime import datetime
 from enum import Enum
+from .problema_incidente_link import ProblemaIncidenteLink
+from .articulo_incidente_link import ArticuloIncidenteLink
+from .articulo import Articulo
 
 
 class FormaDeNotificacion(Enum):
@@ -26,7 +29,7 @@ class Categoria(Enum):
     LEGAL = "legal"
 
 
-class IncidenteForm(SQLModel):
+class IncidenteBase(SQLModel):
     id_usuario: int = Field(default=None, foreign_key="usuarios.id")
     forma_de_notificacion: FormaDeNotificacion
     reportador: str
@@ -37,8 +40,24 @@ class IncidenteForm(SQLModel):
     informacion_adicional: str
 
 
-class Incidente(IncidenteForm, table=True):
+class IncidenteForm(IncidenteBase):
+    ids_articulos: List[int]
+
+
+class Incidente(IncidenteBase, table=True):
     __tablename__ = "incidentes"
 
     id: Optional[int] = Field(default=None, primary_key=True)
     fecha_de_alta: datetime = Field(default=datetime.now())
+    problemas: List["Problema"] = Relationship(
+        back_populates="incidentes", link_model=ProblemaIncidenteLink
+    )
+    articulos_afectados: List["Articulo"] = Relationship(
+        back_populates="incidentes_relacionados", link_model=ArticuloIncidenteLink
+    )
+
+
+class IncidentePublico(IncidenteBase):
+    id: Optional[int]
+    fecha_de_alta: datetime
+    articulos_afectados: List[Articulo] = []
