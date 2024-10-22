@@ -32,10 +32,13 @@ def obtener_articulos(
 def crear_articulo(
     articulo_form: ArticuloForm, session: Session = Depends(get_session)
 ):
-    usuario = session.exec(select(Usuario).where(Usuario.id == articulo_form.id_titular)).first()
+    usuario = session.exec(
+        select(Usuario).where(Usuario.id == articulo_form.id_titular)
+    ).first()
     if not usuario:
         raise HTTPException(
-            status_code=404, detail=f"Usuario con id {articulo_form.id_titular} no encontrado"
+            status_code=404,
+            detail=f"Usuario con id {articulo_form.id_titular} no encontrado",
         )
     articulo = Articulo.model_validate(articulo_form)
     session.add(articulo)

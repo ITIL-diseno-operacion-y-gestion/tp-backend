@@ -56,6 +56,7 @@ class ProblemaPublico(ProblemaBase):
     fecha_de_deteccion: datetime
     incidentes: List[Incidente] = []
 
+
 class ProblemaUpdateForm(BaseModel):
     sintomas: Optional[str] = None
     prioridad: Optional[Prioridad] = None

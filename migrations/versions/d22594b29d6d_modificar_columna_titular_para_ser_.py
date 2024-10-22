@@ -20,8 +20,14 @@ depends_on: Union[str, Sequence[str], None] = None
 
 def upgrade() -> None:
     op.execute("UPDATE articulos SET titular = 1;")
-    op.alter_column('articulos', 'titular', nullable=False, new_column_name='id_titular', type_=sa.Integer,
-        postgresql_using="titular::integer",)
+    op.alter_column(
+        "articulos",
+        "titular",
+        nullable=False,
+        new_column_name="id_titular",
+        type_=sa.Integer,
+        postgresql_using="titular::integer",
+    )
     op.create_foreign_key(
         "fk_titular_articulo", "articulos", "usuarios", ["id_titular"], ["id"]
     )
@@ -29,4 +35,4 @@ def upgrade() -> None:
 
 def downgrade() -> None:
     op.alter_column("articulos", "titular", type_=sa.String(50))
-    op.drop_constraint('fk_titular_articulo', 'articulos', type_='foreignkey')
+    op.drop_constraint("fk_titular_articulo", "articulos", type_="foreignkey")
