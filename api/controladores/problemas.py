@@ -8,6 +8,7 @@ from ..modelo.problema import (
     ProblemaPublico,
 )
 from ..modelo.incidente import Incidente
+from datetime import datetime
 
 router = APIRouter(
     prefix="/problemas",
@@ -46,6 +47,7 @@ def crear_problema(
 
     problema = Problema.model_validate(problema_form)
     problema.incidentes = incidentes
+    problema.fecha_de_deteccion = datetime.now()
 
     session.add(problema)
     session.commit()

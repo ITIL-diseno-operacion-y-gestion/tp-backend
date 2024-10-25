@@ -4,6 +4,7 @@ from ..db import get_session, obtener_por_id
 from ..modelo.incidente import Incidente, IncidenteForm, IncidentePublico
 from ..modelo.articulo import Articulo
 from ..modelo.usuario import Usuario
+from datetime import datetime
 
 router = APIRouter(
     prefix="/incidentes",
@@ -44,6 +45,7 @@ def crear_incidente(
 
     incidente = Incidente.model_validate(incidente_form)
     incidente.articulos_afectados = articulos
+    incidente.fecha_de_alta = datetime.now()
 
     session.add(incidente)
     session.commit()
