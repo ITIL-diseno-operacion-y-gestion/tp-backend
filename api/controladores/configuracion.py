@@ -1,7 +1,7 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 
 from sqlmodel import Session, select
-from ..db import get_session
+from ..db import get_session, obtener_por_id
 from ..modelo.articulo import Articulo, ArticuloForm
 from ..modelo.usuario import Usuario
 
@@ -13,8 +13,7 @@ router = APIRouter(
 
 @router.get("/articulos/{id}")
 def obtener_articulo_por_id(id, session: Session = Depends(get_session)):
-    articulo = session.get_one(Articulo, id)
-    return articulo
+    return obtener_por_id(Articulo, id, session)
 
 
 @router.get("/articulos")
@@ -32,14 +31,7 @@ def obtener_articulos(
 def crear_articulo(
     articulo_form: ArticuloForm, session: Session = Depends(get_session)
 ):
-    usuario = session.exec(
-        select(Usuario).where(Usuario.id == articulo_form.id_titular)
-    ).first()
-    if not usuario:
-        raise HTTPException(
-            status_code=404,
-            detail=f"Usuario con id {articulo_form.id_titular} no encontrado",
-        )
+    usuario = obtener_por_id(Usuario, articulo_form.id_titular, session)
     articulo = Articulo.model_validate(articulo_form)
     session.add(articulo)
     session.commit()
@@ -49,11 +41,7 @@ def crear_articulo(
 
 @router.delete("/articulos/{id}")
 def dar_de_baja_articulo_por_id(id, session: Session = Depends(get_session)):
-    articulo = session.exec(select(Articulo).where(Articulo.id == id)).first()
-    if not articulo:
-        raise HTTPException(
-            status_code=404, detail=f"Articulo con id {id} no encontrado"
-        )
+    articulo = obtener_por_id(Articulo, id, session)
     articulo.esta_activo = False
     session.add(articulo)
     session.commit()

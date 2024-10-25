@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session, select
-from ..db import get_session
+from ..db import get_session, obtener_por_id
 from ..modelo.incidente import Incidente, IncidenteForm, IncidentePublico
 from ..modelo.articulo import Articulo
 from ..modelo.usuario import Usuario
@@ -13,8 +13,7 @@ router = APIRouter(
 
 @router.get("/{id}", response_model=IncidentePublico)
 def obtener_incidente_por_id(id, session: Session = Depends(get_session)):
-    incidente = session.get_one(Incidente, id)
-    return incidente
+    return obtener_por_id(Incidente, id, session)
 
 
 @router.get("")
@@ -41,14 +40,7 @@ def crear_incidente(
             status_code=422, detail="Alguno de los articulos no fue encontrado"
         )
 
-    usuario = session.exec(
-        select(Usuario).where(Usuario.id == incidente_form.id_usuario)
-    ).first()
-    if not usuario:
-        raise HTTPException(
-            status_code=404,
-            detail=f"Usuario con id {incidente_form.id_usuario} no encontrado",
-        )
+    usuario = obtener_por_id(Usuario, incidente_form.id_usuario, session)
 
     incidente = Incidente.model_validate(incidente_form)
     incidente.articulos_afectados = articulos
