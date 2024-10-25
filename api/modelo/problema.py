@@ -45,7 +45,7 @@ class Problema(ProblemaBase, table=True):
     __tablename__ = "problemas"
 
     id: Optional[int] = Field(default=None, primary_key=True)
-    fecha_de_deteccion: datetime = Field(default=datetime.now())
+    fecha_de_deteccion: Optional[datetime] = Field(default=None)
     incidentes: List[Incidente] = Relationship(
         back_populates="problemas", link_model=ProblemaIncidenteLink
     )

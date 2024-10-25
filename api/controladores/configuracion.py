@@ -4,6 +4,7 @@ from sqlmodel import Session, select
 from ..db import get_session, obtener_por_id
 from ..modelo.articulo import Articulo, ArticuloForm
 from ..modelo.usuario import Usuario
+from datetime import datetime
 
 router = APIRouter(
     prefix="/configuracion",
@@ -33,6 +34,7 @@ def crear_articulo(
 ):
     usuario = obtener_por_id(Usuario, articulo_form.id_titular, session)
     articulo = Articulo.model_validate(articulo_form)
+    articulo.fecha_de_alta = datetime.now()
     session.add(articulo)
     session.commit()
     session.refresh(articulo)
@@ -48,18 +50,6 @@ def dar_de_baja_articulo_por_id(id, session: Session = Depends(get_session)):
     session.refresh(articulo)
     return articulo
 
-
-# def registrar_modificacion(articulo_orig, articulo, accion, session):
-#     audit = Audit()
-#     audit.id_articulo = articulo.id
-#     audit.fecha = datetime.now()
-#     audit.accion = accion
-#     if articulo_orig is not None:
-#         audit.estado_anterior = articulo_orig.to_dict()
-#     audit.estado_nuevo = articulo.to_dict()
-#     print("audit: ", audit)
-#     #session.add(audit)
-#     #session.commit()
 
 # @router.patch("/articulos/{id}")
 # def actualizar_articulo(

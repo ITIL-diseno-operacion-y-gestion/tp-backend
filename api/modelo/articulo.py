@@ -42,7 +42,7 @@ class Articulo(ArticuloForm, table=True):
     __tablename__ = "articulos"
 
     id: Optional[int] = Field(default=None, primary_key=True)
-    fecha_de_alta: datetime = Field(default=datetime.now())
+    fecha_de_alta: Optional[datetime] = Field(default=None)
     esta_activo: bool = Field(default=True)
     incidentes_relacionados: List["Incidente"] = Relationship(
         back_populates="articulos_afectados", link_model=ArticuloIncidenteLink
