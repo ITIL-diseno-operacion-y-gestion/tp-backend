@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session, select
-from ..db import get_session
+from ..db import get_session, obtener_por_id
 from ..modelo.problema import (
     Problema,
     ProblemaForm,
@@ -17,8 +17,7 @@ router = APIRouter(
 
 @router.get("/{id}", response_model=ProblemaPublico)
 def obtener_problema_por_id(id, session: Session = Depends(get_session)):
-    problema = session.get_one(Problema, id)
-    return problema
+    return obtener_por_id(Problema, id, session)
 
 
 @router.get("", response_model=list[Problema])
@@ -58,11 +57,7 @@ def crear_problema(
 def actualizar_problema(
     id, problema_form: ProblemaUpdateForm, session: Session = Depends(get_session)
 ):
-    problema = None
-    try:
-        problema = session.get_one(Problema, id)
-    except Exception:
-        raise HTTPException(status_code=500, detail="Problema not found")
+    problema = obtener_por_id(Problema, id, session)
     problema_nueva_data = problema_form.model_dump(exclude_unset=True)
     problema.sqlmodel_update(problema_nueva_data)
     session.add(problema)
