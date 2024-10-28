@@ -12,7 +12,7 @@ from datetime import datetime
 
 router = APIRouter(
     prefix="/problemas",
-    tags=["problemas"],
+    tags=["Gestión de problemas"],
 )
 
 

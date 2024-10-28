@@ -4,7 +4,13 @@ from .db import init_db
 from .controladores import usuarios, configuracion, incidentes, problemas, cambios
 
 
-app = FastAPI()
+app = FastAPI(
+    title="ITIL API",
+    swagger_ui_parameters={
+        "syntaxHighlight": {"theme": "arta"},
+        "tryItOutEnabled": True,
+    },
+)
 app.include_router(usuarios.router)
 app.include_router(configuracion.router)
 app.include_router(incidentes.router)

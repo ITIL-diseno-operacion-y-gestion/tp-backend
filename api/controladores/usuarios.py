@@ -13,7 +13,7 @@ import string
 
 router = APIRouter(
     prefix="/usuarios",
-    tags=["usuarios"],
+    tags=["Usuarios"],
 )
 
 
