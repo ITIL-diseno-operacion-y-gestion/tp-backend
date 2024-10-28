@@ -8,7 +8,7 @@ from datetime import datetime
 
 router = APIRouter(
     prefix="/incidentes",
-    tags=["incidentes"],
+    tags=["Gestión de incidentes"],
 )
 
 

@@ -8,7 +8,7 @@ from datetime import datetime
 
 router = APIRouter(
     prefix="/cambios",
-    tags=["cambios"],
+    tags=["Gestión de cambios"],
 )
 
 
