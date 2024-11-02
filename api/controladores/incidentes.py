@@ -27,6 +27,8 @@ def obtener_incidentes(session: Session = Depends(get_session)):
 def crear_incidente(
     incidente_form: IncidenteForm, session: Session = Depends(get_session)
 ):
+    print("incidente_form.ids_articulos: ", incidente_form.ids_articulos)
+    print("incidente_form.conformidad_resolucion: ", incidente_form.conformidad_resolucion)
     if len(incidente_form.ids_articulos) < 1:
         raise HTTPException(
             status_code=422, detail="Se debe ingresar al menos un articulo"

@@ -39,6 +39,7 @@ class IncidenteBase(SQLModel):
     prioridad: Prioridad
     categoria: Categoria
     informacion_adicional: str
+    conformidad_resolucion: Optional[int]
 
 
 class IncidenteForm(IncidenteBase):
@@ -59,9 +60,11 @@ class Incidente(IncidenteBase, table=True):
     errores_conocidos: List["ErrorConocido"] = Relationship(
         back_populates="incidentes", link_model=ErrorConocidoIncidenteLink
     )
+    conformidad_resolucion: Optional[int] = Field(default=None)
 
 
 class IncidentePublico(IncidenteBase):
     id: Optional[int]
     fecha_de_alta: datetime
     articulos_afectados: List[Articulo] = []
+    conformidad_resolucion: Optional[int]
