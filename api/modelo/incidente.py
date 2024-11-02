@@ -4,6 +4,7 @@ from datetime import datetime
 from enum import Enum
 from .problema_incidente_link import ProblemaIncidenteLink
 from .articulo_incidente_link import ArticuloIncidenteLink
+from .error_conocido_incidente_link import ErrorConocidoIncidenteLink
 from .articulo import Articulo
 
 
@@ -52,8 +53,11 @@ class Incidente(IncidenteBase, table=True):
     problemas: List["Problema"] = Relationship(
         back_populates="incidentes", link_model=ProblemaIncidenteLink
     )
-    articulos_afectados: List["Articulo"] = Relationship(
+    articulos_afectados: List[Articulo] = Relationship(
         back_populates="incidentes_relacionados", link_model=ArticuloIncidenteLink
+    )
+    errores_conocidos: List["ErrorConocido"] = Relationship(
+        back_populates="incidentes", link_model=ErrorConocidoIncidenteLink
     )
 
 

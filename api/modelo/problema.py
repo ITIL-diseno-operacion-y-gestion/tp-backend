@@ -1,10 +1,10 @@
 from typing import Optional, List
 from sqlmodel import SQLModel, Field, Relationship
-
 from pydantic import BaseModel
 from enum import Enum
 from datetime import datetime
 from .problema_incidente_link import ProblemaIncidenteLink
+from .error_conocido_problema_link import ErrorConocidoProblemaLink
 from .incidente import Incidente
 
 
@@ -48,6 +48,9 @@ class Problema(ProblemaBase, table=True):
     fecha_de_deteccion: Optional[datetime] = Field(default=None)
     incidentes: List[Incidente] = Relationship(
         back_populates="problemas", link_model=ProblemaIncidenteLink
+    )
+    errores_conocidos: List["ErrorConocido"] = Relationship(
+        back_populates="problemas", link_model=ErrorConocidoProblemaLink
     )
 
 
