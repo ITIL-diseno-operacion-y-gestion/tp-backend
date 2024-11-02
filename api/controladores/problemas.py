@@ -8,26 +8,27 @@ from ..modelo.problema import (
     ProblemaPublico,
 )
 from ..modelo.incidente import Incidente
+from ..modelo.error_conocido import (
+    ErrorConocido,
+    ErrorConocidoForm,
+    ErrorConocidoPublico,
+)
 from datetime import datetime
 
-router = APIRouter(
-    prefix="/problemas",
-    tags=["Gestión de problemas"],
-)
+router = APIRouter(tags=["Gestión de problemas"])
 
 
-@router.get("/{id}", response_model=ProblemaPublico)
+@router.get("/problemas/{id}", response_model=ProblemaPublico)
 def obtener_problema_por_id(id, session: Session = Depends(get_session)):
     return obtener_por_id(Problema, id, session)
 
 
-@router.get("", response_model=list[Problema])
+@router.get("/problemas", response_model=list[Problema])
 def obtener_problemas(session: Session = Depends(get_session)):
-    problemas = session.exec(select(Problema)).all()
-    return problemas
+    return session.exec(select(Problema)).all()
 
 
-@router.post("", response_model=ProblemaPublico)
+@router.post("/problemas", response_model=ProblemaPublico)
 def crear_problema(
     problema_form: ProblemaForm, session: Session = Depends(get_session)
 ):
@@ -55,7 +56,7 @@ def crear_problema(
     return problema
 
 
-@router.patch("/{id}")
+@router.patch("/problemas/{id}")
 def actualizar_problema(
     id, problema_form: ProblemaUpdateForm, session: Session = Depends(get_session)
 ):
@@ -66,3 +67,47 @@ def actualizar_problema(
     session.commit()
     session.refresh(problema)
     return problema
+
+
+@router.get("/errores-conocidos/{id}", response_model=ErrorConocidoPublico)
+def obtener_error_conocido_por_id(id, session: Session = Depends(get_session)):
+    return obtener_por_id(ErrorConocido, id, session)
+
+
+@router.get("/errores-conocidos", response_model=list[ErrorConocido])
+def obtener_errores_conocidos(session: Session = Depends(get_session)):
+    return session.exec(select(ErrorConocido)).all()
+
+
+@router.post("/errores-conocidos", response_model=ErrorConocidoPublico)
+def crear_error_conocido(
+    error_conocido_form: ErrorConocidoForm,
+    session: Session = Depends(get_session),
+):
+    incidentes = session.exec(
+        select(Incidente).where(Incidente.id.in_(error_conocido_form.ids_incidentes))
+    ).all()
+
+    if len(incidentes) != len(error_conocido_form.ids_incidentes):
+        raise HTTPException(
+            status_code=422, detail="Alguno de los incidentes no fue encontrado"
+        )
+
+    problemas = session.exec(
+        select(Problema).where(Problema.id.in_(error_conocido_form.ids_problemas))
+    ).all()
+
+    if len(problemas) != len(error_conocido_form.ids_problemas):
+        raise HTTPException(
+            status_code=422, detail="Alguno de los problemas no fue encontrado"
+        )
+
+    error_conocido = ErrorConocido.model_validate(error_conocido_form)
+    error_conocido.incidentes = incidentes
+    error_conocido.problemas = problemas
+    error_conocido.fecha_de_creacion = datetime.now()
+
+    session.add(error_conocido)
+    session.commit()
+    session.refresh(error_conocido)
+    return error_conocido
