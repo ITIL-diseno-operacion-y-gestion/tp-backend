@@ -74,7 +74,7 @@ def obtener_error_conocido_por_id(id, session: Session = Depends(get_session)):
     return obtener_por_id(ErrorConocido, id, session)
 
 
-@router.get("/errores-conocidos", response_model=list[ErrorConocido])
+@router.get("/errores-conocidos")
 def obtener_errores_conocidos(session: Session = Depends(get_session)):
     return session.exec(select(ErrorConocido)).all()
 
