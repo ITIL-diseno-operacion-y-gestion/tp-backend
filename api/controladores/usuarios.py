@@ -19,6 +19,7 @@ router = APIRouter(
 
 @router.get("", response_model=list[UsuarioPublico])
 def obtener_usuarios(session: Session = Depends(get_session)):
+    print("entre a obtener_usuarios")
     usuarios = session.exec(select(Usuario)).all()
     return usuarios
 

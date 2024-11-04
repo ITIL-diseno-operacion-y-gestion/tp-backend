@@ -1,5 +1,4 @@
-from fastapi import APIRouter, Depends
-
+from fastapi import APIRouter, Depends, Query
 from sqlmodel import Session, select
 from ..db import get_session, obtener_por_id
 from ..modelo.articulo import Articulo, ArticuloForm
