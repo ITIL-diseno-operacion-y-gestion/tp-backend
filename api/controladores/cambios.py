@@ -5,15 +5,19 @@ from ..modelo.cambio import Cambio, CambioForm, CambioPublico
 from ..modelo.usuario import Usuario
 from ..modelo.articulo import Articulo
 from datetime import datetime
+from ..modelo.auditoria import registrar_accion, ACCION_CREACION, ACCION_ELIMINACION
 
 router = APIRouter(
     prefix="/cambios",
     tags=["Gestión de cambios"],
 )
 
+CLASE_CAMBIO = "cambio"
+
 @router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
 def eliminar_cambio_por_id(id, session: Session = Depends(get_session)):
-    return eliminar_por_id(Cambio, id, session)
+    eliminar_por_id(Cambio, id, session)
+    registrar_accion(session, CLASE_CAMBIO, id, ACCION_ELIMINACION, None, None)
 
 @router.get("/{id}", response_model=CambioPublico)
 def obtener_cambio_por_id(id, session: Session = Depends(get_session)):
@@ -51,4 +55,5 @@ def crear_cambio(cambio_form: CambioForm, session: Session = Depends(get_session
     session.add(cambio)
     session.commit()
     session.refresh(cambio)
+    registrar_accion(session, CLASE_CAMBIO, cambio.id, ACCION_CREACION, None, cambio.json())
     return cambio

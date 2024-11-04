@@ -4,16 +4,15 @@ from ..db import get_session, obtener_por_id, eliminar_por_id
 from ..modelo.articulo import Articulo, ArticuloForm
 from ..modelo.usuario import Usuario
 from datetime import datetime
+from ..modelo.auditoria import registrar_accion, ACCION_CREACION, ACCION_ELIMINACION
 
 router = APIRouter(
     prefix="/configuracion",
     tags=["Gestión de configuración"],
 )
 
-
-@router.delete("/articulos/{id}", status_code=status.HTTP_204_NO_CONTENT)
-def eliminar_articulo_por_id(id, session: Session = Depends(get_session)):
-    return eliminar_por_id(Articulo, id, session)
+CLASE_ARTICULO = "articulo"
+    
 
 @router.get("/articulos/{id}")
 def obtener_articulo_por_id(id, session: Session = Depends(get_session)):
@@ -41,16 +40,20 @@ def crear_articulo(
     session.add(articulo)
     session.commit()
     session.refresh(articulo)
-    return articulo
+    articulo_respuesta = articulo.copy()
+    registrar_accion(session, CLASE_ARTICULO, articulo.id, ACCION_CREACION, None, articulo.json())
+    return articulo_respuesta
 
 
-@router.delete("/articulos/{id}")
+@router.delete("/articulos/{id}", status_code=status.HTTP_204_NO_CONTENT)
 def dar_de_baja_articulo_por_id(id, session: Session = Depends(get_session)):
     articulo = obtener_por_id(Articulo, id, session)
+    estado_anterior = articulo.json()
     articulo.esta_activo = False
     session.add(articulo)
     session.commit()
     session.refresh(articulo)
+    registrar_accion(session, CLASE_ARTICULO, id, ACCION_ELIMINACION, estado_anterior, articulo.json())
     return articulo
 
 

@@ -8,8 +8,11 @@ from ..modelo.usuario import (
     UsuarioLoginForm,
     UsuarioLoginRespuesta,
 )
+from ..modelo.auditoria import registrar_accion, ACCION_CREACION, ACCION_ELIMINACION
 import secrets
 import string
+
+CLASE_USUARIO = "usuario"
 
 router = APIRouter(
     prefix="/usuarios",
@@ -19,6 +22,7 @@ router = APIRouter(
 @router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
 def eliminar_usuario_por_id(id, session: Session = Depends(get_session)):
     eliminar_por_id(Usuario, id, session)
+    registrar_accion(session, CLASE_USUARIO, id, ACCION_ELIMINACION, None, None)
 
 @router.get("", response_model=list[UsuarioPublico])
 def obtener_usuarios(session: Session = Depends(get_session)):
@@ -33,7 +37,9 @@ def crear_usuario(usuario_form: UsuarioForm, session: Session = Depends(get_sess
     session.add(usuario)
     session.commit()
     session.refresh(usuario)
-    return usuario
+    respuesta_usuario = usuario.copy()
+    registrar_accion(session, CLASE_USUARIO, usuario.id, ACCION_CREACION, None, usuario.json(exclude={"contrasenia"}))
+    return respuesta_usuario
 
 
 def generar_random_token(length=32):
