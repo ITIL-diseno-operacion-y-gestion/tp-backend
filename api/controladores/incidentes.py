@@ -5,15 +5,19 @@ from ..modelo.incidente import Incidente, IncidenteForm, IncidentePublico
 from ..modelo.articulo import Articulo
 from ..modelo.usuario import Usuario
 from datetime import datetime
+from ..modelo.auditoria import registrar_accion, ACCION_CREACION, ACCION_ELIMINACION
 
 router = APIRouter(
     prefix="/incidentes",
     tags=["Gestión de incidentes"],
 )
 
+CLASE_INCIDENTE = "incidente"
+
 @router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
 def eliminar_incidente_por_id(id, session: Session = Depends(get_session)):
-    return eliminar_por_id(Incidente, id, session)
+    eliminar_por_id(Incidente, id, session)
+    registrar_accion(session, CLASE_INCIDENTE, id, ACCION_ELIMINACION, None, None)
 
 @router.get("/{id}", response_model=IncidentePublico)
 def obtener_incidente_por_id(id, session: Session = Depends(get_session)):
@@ -55,4 +59,5 @@ def crear_incidente(
     session.add(incidente)
     session.commit()
     session.refresh(incidente)
+    registrar_accion(session, CLASE_INCIDENTE, incidente.id, ACCION_CREACION, None, incidente.json())
     return incidente
