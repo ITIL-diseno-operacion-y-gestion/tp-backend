@@ -1,6 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import Session, select
-from ..db import get_session
+from ..db import get_session, eliminar_por_id
 from ..modelo.usuario import (
     Usuario,
     UsuarioPublico,
@@ -16,6 +16,9 @@ router = APIRouter(
     tags=["Usuarios"],
 )
 
+@router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
+def eliminar_usuario_por_id(id, session: Session = Depends(get_session)):
+    eliminar_por_id(Usuario, id, session)
 
 @router.get("", response_model=list[UsuarioPublico])
 def obtener_usuarios(session: Session = Depends(get_session)):

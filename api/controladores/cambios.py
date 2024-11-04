@@ -1,6 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import Session, select
-from ..db import get_session, obtener_por_id
+from ..db import get_session, obtener_por_id, eliminar_por_id
 from ..modelo.cambio import Cambio, CambioForm, CambioPublico
 from ..modelo.usuario import Usuario
 from ..modelo.articulo import Articulo
@@ -11,6 +11,9 @@ router = APIRouter(
     tags=["Gestión de cambios"],
 )
 
+@router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
+def eliminar_cambio_por_id(id, session: Session = Depends(get_session)):
+    return eliminar_por_id(Cambio, id, session)
 
 @router.get("/{id}", response_model=CambioPublico)
 def obtener_cambio_por_id(id, session: Session = Depends(get_session)):
