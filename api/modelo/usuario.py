@@ -2,11 +2,13 @@ from typing import Optional
 from sqlmodel import SQLModel, Field
 from pydantic import BaseModel
 
+ROLES_VALIDOS = ["cliente", "supervisor", "agente"]
 
 class UsuarioBase(SQLModel):
     nombre: str
     apellido: str
     email: str
+    rol: str
 
 
 class UsuarioForm(UsuarioBase):
@@ -18,6 +20,7 @@ class UsuarioPublico(SQLModel):
     nombre: str
     apellido: str
     email: str
+    rol: str
 
 
 class UsuarioLoginForm(BaseModel):
