@@ -1,6 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import Session, select
-from ..db import get_session, obtener_por_id
+from ..db import get_session, obtener_por_id, eliminar_por_id
 from ..modelo.problema import (
     Problema,
     ProblemaForm,
@@ -17,6 +17,9 @@ from datetime import datetime
 
 router = APIRouter(tags=["Gestión de problemas"])
 
+@router.delete("/problemas/{id}", status_code=status.HTTP_204_NO_CONTENT)
+def eliminar_problema_por_id(id, session: Session = Depends(get_session)):
+    eliminar_por_id(Problema, id, session)
 
 @router.get("/problemas/{id}", response_model=ProblemaPublico)
 def obtener_problema_por_id(id, session: Session = Depends(get_session)):
@@ -68,6 +71,10 @@ def actualizar_problema(
     session.refresh(problema)
     return problema
 
+
+@router.delete("/errores-conocidos/{id}", status_code=status.HTTP_204_NO_CONTENT)
+def eliminar_error_conocido_por_id(id, session: Session = Depends(get_session)):
+    return eliminar_por_id(ErrorConocido, id, session)
 
 @router.get("/errores-conocidos/{id}", response_model=ErrorConocidoPublico)
 def obtener_error_conocido_por_id(id, session: Session = Depends(get_session)):

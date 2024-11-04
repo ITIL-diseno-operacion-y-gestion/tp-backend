@@ -1,6 +1,6 @@
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, status
 from sqlmodel import Session, select
-from ..db import get_session, obtener_por_id
+from ..db import get_session, obtener_por_id, eliminar_por_id
 from ..modelo.articulo import Articulo, ArticuloForm
 from ..modelo.usuario import Usuario
 from datetime import datetime
@@ -10,6 +10,10 @@ router = APIRouter(
     tags=["Gestión de configuración"],
 )
 
+
+@router.delete("/articulos/{id}", status_code=status.HTTP_204_NO_CONTENT)
+def eliminar_articulo_por_id(id, session: Session = Depends(get_session)):
+    return eliminar_por_id(Articulo, id, session)
 
 @router.get("/articulos/{id}")
 def obtener_articulo_por_id(id, session: Session = Depends(get_session)):
