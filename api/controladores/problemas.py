@@ -6,6 +6,7 @@ from ..modelo.problema import (
     ProblemaForm,
     ProblemaUpdateForm,
     ProblemaPublico,
+    Estado,
 )
 from ..modelo.incidente import Incidente
 from ..modelo.error_conocido import (
@@ -72,6 +73,11 @@ def actualizar_problema(
     problema = obtener_por_id(Problema, id, session)
     estado_anterior = problema.json()
     problema_nueva_data = problema_form.model_dump(exclude_unset=True)
+    if problema.estado != Estado.RESUELTO and problema_form.estado == Estado.RESUELTO:
+        print("CREO LA FECHA DE RESOLUCION")
+        problema_nueva_data["fecha_de_resolucion"] = datetime.now()
+    else:
+        print("NO CREO LA FECHA DE RESOLUCION")
     problema.sqlmodel_update(problema_nueva_data)
     session.add(problema)
     session.commit()
