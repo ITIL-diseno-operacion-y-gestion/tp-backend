@@ -1,11 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import Session, select
 from ..db import get_session, obtener_por_id, eliminar_por_id
-from ..modelo.incidente import Incidente, IncidenteForm, IncidentePublico
+from ..modelo.incidente import Incidente, IncidenteForm, IncidenteAsignarAgenteForm, IncidentePublico
 from ..modelo.articulo import Articulo
 from ..modelo.usuario import Usuario
 from datetime import datetime
-from ..modelo.auditoria import registrar_accion, ACCION_CREACION, ACCION_ELIMINACION
+from ..modelo.auditoria import registrar_accion, ACCION_CREACION, ACCION_ELIMINACION, ACCION_ACTUALIZACION
 
 router = APIRouter(
     prefix="/incidentes",
@@ -22,6 +22,20 @@ def eliminar_incidente_por_id(id, session: Session = Depends(get_session)):
 @router.get("/{id}", response_model=IncidentePublico)
 def obtener_incidente_por_id(id, session: Session = Depends(get_session)):
     return obtener_por_id(Incidente, id, session)
+
+
+@router.patch("/{id}", response_model=IncidentePublico)
+def obtener_incidente_por_id(id, incidente_form: IncidenteAsignarAgenteForm, session: Session = Depends(get_session)):
+    incidente =  obtener_por_id(Incidente, id, session)
+    estado_anterior = incidente.json()
+    usuario = obtener_por_id(Usuario, incidente_form.id_agente_asignado, session)
+    incidente.id_agente_asignado = incidente_form.id_agente_asignado
+    session.add(incidente)
+    session.commit()
+    session.refresh(incidente)
+    incidente_respuesta = IncidentePublico.from_orm(incidente)
+    registrar_accion(session, CLASE_INCIDENTE, incidente.id, ACCION_ACTUALIZACION, estado_anterior, incidente.json())
+    return incidente_respuesta
 
 
 @router.get("")

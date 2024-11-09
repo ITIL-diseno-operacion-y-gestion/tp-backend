@@ -39,12 +39,14 @@ class IncidenteBase(SQLModel):
     prioridad: Prioridad
     categoria: Categoria
     informacion_adicional: str
-    conformidad_resolucion: Optional[int]
+    conformidad_resolucion: Optional[int]  = Field(default=None, nullable=True)
+    id_agente_asignado: Optional[int]  = Field(default=None, nullable=True)
 
+class IncidenteAsignarAgenteForm(SQLModel):
+    id_agente_asignado: int
 
 class IncidenteForm(IncidenteBase):
     ids_articulos: List[int]
-
 
 class Incidente(IncidenteBase, table=True):
     __tablename__ = "incidentes"

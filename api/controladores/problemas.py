@@ -74,10 +74,7 @@ def actualizar_problema(
     estado_anterior = problema.json()
     problema_nueva_data = problema_form.model_dump(exclude_unset=True)
     if problema.estado != Estado.RESUELTO and problema_form.estado == Estado.RESUELTO:
-        print("CREO LA FECHA DE RESOLUCION")
         problema_nueva_data["fecha_de_resolucion"] = datetime.now()
-    else:
-        print("NO CREO LA FECHA DE RESOLUCION")
     problema.sqlmodel_update(problema_nueva_data)
     session.add(problema)
     session.commit()

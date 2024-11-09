@@ -29,4 +29,4 @@ def upgrade() -> None:
 
 
 def downgrade() -> None:
-    op.drop_column("probleas", "fecha_de_resolucion")
+    op.drop_column("problemas", "fecha_de_resolucion")
