@@ -34,6 +34,7 @@ class UsuarioLoginRespuesta(BaseModel):
     apellido: str
     email: str
     token: str
+    rol: str
 
 
 class Usuario(UsuarioForm, table=True):
