@@ -74,4 +74,5 @@ def login_usuario(
         apellido=usuario.apellido,
         email=usuario.email,
         token=generar_random_token(),
+        rol=usuario.rol
     )
