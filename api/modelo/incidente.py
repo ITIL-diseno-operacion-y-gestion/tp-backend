@@ -34,8 +34,6 @@ class IncidenteBase(SQLModel):
     id_usuario: int = Field(default=None, foreign_key="usuarios.id")
     nombre: str
     forma_de_notificacion: FormaDeNotificacion
-    reportador: str
-    usuarios_afectados: str
     servicios_afectados: str
     prioridad: Prioridad
     categoria: Categoria
@@ -72,3 +70,4 @@ class IncidentePublico(IncidenteBase):
     fecha_de_alta: datetime
     articulos_afectados: List[Articulo] = []
     conformidad_resolucion: Optional[int]
+    nombre: Optional[str]  = Field(default=None, nullable=True)
