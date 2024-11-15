@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import Session, select
 from ..db import get_session, obtener_por_id, eliminar_por_id
-from ..modelo.incidente import Incidente, IncidenteForm, IncidenteAsignarAgenteForm, IncidentePublico
+from ..modelo.incidente import Incidente, IncidenteForm, IncidentePatchForm, IncidentePublico
 from ..modelo.articulo import Articulo
 from ..modelo.usuario import Usuario
 from datetime import datetime
@@ -25,11 +25,14 @@ def obtener_incidente_por_id(id, session: Session = Depends(get_session)):
 
 
 @router.patch("/{id}", response_model=IncidentePublico)
-def obtener_incidente_por_id(id, incidente_form: IncidenteAsignarAgenteForm, session: Session = Depends(get_session)):
+def obtener_incidente_por_id(id, incidente_form: IncidentePatchForm, session: Session = Depends(get_session)):
     incidente =  obtener_por_id(Incidente, id, session)
     estado_anterior = incidente.json()
-    usuario = obtener_por_id(Usuario, incidente_form.id_agente_asignado, session)
-    incidente.id_agente_asignado = incidente_form.id_agente_asignado
+    if (incidente_form.id_agente_asignado):
+        usuario = obtener_por_id(Usuario, incidente_form.id_agente_asignado, session)
+        incidente.id_agente_asignado = incidente_form.id_agente_asignado
+    if (incidente_form.conformidad_resolucion):
+        incidente.conformidad_resolucion = incidente_form.conformidad_resolucion
     session.add(incidente)
     session.commit()
     session.refresh(incidente)

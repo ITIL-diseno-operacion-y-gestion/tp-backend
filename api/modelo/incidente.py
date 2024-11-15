@@ -42,8 +42,9 @@ class IncidenteBase(SQLModel):
     conformidad_resolucion: Optional[int]  = Field(default=None, nullable=True)
     id_agente_asignado: Optional[int]  = Field(default=None, nullable=True)
 
-class IncidenteAsignarAgenteForm(SQLModel):
-    id_agente_asignado: int
+class IncidentePatchForm(SQLModel):
+    id_agente_asignado: Optional[int] = Field(default=None)
+    conformidad_resolucion: Optional[int] = Field(default=None, ge=0, le=10)
 
 class IncidenteForm(IncidenteBase):
     ids_articulos: List[int]
@@ -62,7 +63,7 @@ class Incidente(IncidenteBase, table=True):
     errores_conocidos: List["ErrorConocido"] = Relationship(
         back_populates="incidentes", link_model=ErrorConocidoIncidenteLink
     )
-    conformidad_resolucion: Optional[int] = Field(default=None)
+    conformidad_resolucion: Optional[int] = Field(default=None, ge=0, le=10)
 
 
 class IncidentePublico(IncidenteBase):
