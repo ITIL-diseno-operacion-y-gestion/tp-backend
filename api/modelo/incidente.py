@@ -32,6 +32,7 @@ class Categoria(Enum):
 
 class IncidenteBase(SQLModel):
     id_usuario: int = Field(default=None, foreign_key="usuarios.id")
+    nombre: str
     forma_de_notificacion: FormaDeNotificacion
     reportador: str
     usuarios_afectados: str
