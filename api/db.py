@@ -22,3 +22,13 @@ def obtener_por_id(clase_entidad, id, session):
             detail=f"{clase_entidad.__name__} con id {id} no encontrado",
         )
     return entidad
+
+def eliminar_por_id(clase_entidad, id, session):
+    entidad = session.exec(select(clase_entidad).where(clase_entidad.id == id)).first()
+    if not entidad:
+        raise HTTPException(
+            status_code=404,
+            detail=f"{clase_entidad.__name__} con id {id} no encontrado",
+        )
+    session.delete(entidad)
+    session.commit()

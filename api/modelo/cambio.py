@@ -39,6 +39,7 @@ class Impacto(Enum):
 
 class CambioBase(SQLModel):
     id_solicitante: int = Field(default=None, foreign_key="usuarios.id")
+    nombre: str
     estado: Estado
     motivo_de_implementacion: str
     descripcion: str
@@ -67,5 +68,6 @@ class Cambio(CambioBase, table=True):
 
 class CambioPublico(CambioBase):
     id: int
+    nombre: Optional[str]
     fecha_de_creacion: datetime
     articulos_afectados: List[Articulo] = []

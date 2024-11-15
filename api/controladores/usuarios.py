@@ -1,24 +1,33 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import Session, select
-from ..db import get_session
+from ..db import get_session, eliminar_por_id
 from ..modelo.usuario import (
     Usuario,
     UsuarioPublico,
     UsuarioForm,
     UsuarioLoginForm,
     UsuarioLoginRespuesta,
+    ROLES_VALIDOS,
 )
+from ..modelo.auditoria import registrar_accion, ACCION_CREACION, ACCION_ELIMINACION
 import secrets
 import string
+
+CLASE_USUARIO = "usuario"
 
 router = APIRouter(
     prefix="/usuarios",
     tags=["Usuarios"],
 )
 
+@router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
+def eliminar_usuario_por_id(id, session: Session = Depends(get_session)):
+    eliminar_por_id(Usuario, id, session)
+    registrar_accion(session, CLASE_USUARIO, id, ACCION_ELIMINACION, None, None)
 
 @router.get("", response_model=list[UsuarioPublico])
 def obtener_usuarios(session: Session = Depends(get_session)):
+    print("entre a obtener_usuarios")
     usuarios = session.exec(select(Usuario)).all()
     return usuarios
 
@@ -26,10 +35,17 @@ def obtener_usuarios(session: Session = Depends(get_session)):
 @router.post("")
 def crear_usuario(usuario_form: UsuarioForm, session: Session = Depends(get_session)):
     usuario = Usuario.model_validate(usuario_form)
+    if usuario.rol not in ROLES_VALIDOS:
+        raise HTTPException(
+            status_code=422,
+            detail="rol invalido",
+        )
     session.add(usuario)
     session.commit()
     session.refresh(usuario)
-    return usuario
+    respuesta_usuario = usuario.copy()
+    registrar_accion(session, CLASE_USUARIO, usuario.id, ACCION_CREACION, None, usuario.json(exclude={"contrasenia"}))
+    return respuesta_usuario
 
 
 def generar_random_token(length=32):
@@ -58,4 +74,5 @@ def login_usuario(
         apellido=usuario.apellido,
         email=usuario.email,
         token=generar_random_token(),
+        rol=usuario.rol
     )

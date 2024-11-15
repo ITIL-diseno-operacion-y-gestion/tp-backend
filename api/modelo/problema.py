@@ -32,6 +32,7 @@ class Categoria(Enum):
 
 class ProblemaBase(SQLModel):
     sintomas: str
+    nombre: str
     prioridad: Prioridad
     categoria: Categoria
     estado: Estado
@@ -46,6 +47,7 @@ class Problema(ProblemaBase, table=True):
 
     id: Optional[int] = Field(default=None, primary_key=True)
     fecha_de_deteccion: Optional[datetime] = Field(default=None)
+    fecha_de_resolucion: Optional[datetime] = Field(default=None)
     incidentes: List[Incidente] = Relationship(
         back_populates="problemas", link_model=ProblemaIncidenteLink
     )
@@ -56,12 +58,14 @@ class Problema(ProblemaBase, table=True):
 
 class ProblemaPublico(ProblemaBase):
     id: Optional[int]
+    nombre: Optional[str]
     fecha_de_deteccion: datetime
     incidentes: List[Incidente] = []
 
 
 class ProblemaUpdateForm(BaseModel):
     sintomas: Optional[str] = None
+    nombre: Optional[str] = None
     prioridad: Optional[Prioridad] = None
     categoria: Optional[Categoria] = None
     estado: Optional[Estado] = None
