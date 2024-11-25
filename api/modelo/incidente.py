@@ -44,6 +44,14 @@ class IncidenteBase(SQLModel):
 class IncidentePatchForm(SQLModel):
     id_agente_asignado: Optional[int] = Field(default=None)
     conformidad_resolucion: Optional[int] = Field(default=None, ge=0, le=10)
+    nombre: Optional[str] = Field(default=None)
+    forma_de_notificacion: Optional[FormaDeNotificacion] = Field(default=None)
+    servicios_afectados: Optional[str] = Field(default=None)
+    prioridad: Optional[Prioridad] = Field(default=None)
+    categoria: Optional[Categoria] = Field(default=None)
+    informacion_adicional: Optional[str] = Field(default=None)
+    conformidad_resolucion: Optional[int]  = Field(default=None, nullable=True)
+    id_agente_asignado: Optional[int]  = Field(default=None, nullable=True)
 
 class IncidenteForm(IncidenteBase):
     ids_articulos: List[int]
