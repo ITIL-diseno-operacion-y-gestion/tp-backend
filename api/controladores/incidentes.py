@@ -28,11 +28,8 @@ def obtener_incidente_por_id(id, session: Session = Depends(get_session)):
 def obtener_incidente_por_id(id, incidente_form: IncidentePatchForm, session: Session = Depends(get_session)):
     incidente =  obtener_por_id(Incidente, id, session)
     estado_anterior = incidente.json()
-    if (incidente_form.id_agente_asignado):
-        usuario = obtener_por_id(Usuario, incidente_form.id_agente_asignado, session)
-        incidente.id_agente_asignado = incidente_form.id_agente_asignado
-    if (incidente_form.conformidad_resolucion):
-        incidente.conformidad_resolucion = incidente_form.conformidad_resolucion
+    incidente_nueva_data = incidente_form.model_dump(exclude_unset=True)
+    incidente.sqlmodel_update(incidente_nueva_data)
     session.add(incidente)
     session.commit()
     session.refresh(incidente)
