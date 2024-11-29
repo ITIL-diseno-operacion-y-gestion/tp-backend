@@ -41,19 +41,18 @@ def crear_articulo(
     session.commit()
     session.refresh(articulo)
     articulo_respuesta = articulo.copy()
-    registrar_accion(session, CLASE_ARTICULO, articulo.id, ACCION_CREACION, None, articulo.json())
+    registrar_accion(session, CLASE_ARTICULO, articulo.id, ACCION_CREACION, articulo.json())
     return articulo_respuesta
 
 
 @router.delete("/articulos/{id}", status_code=status.HTTP_204_NO_CONTENT)
 def dar_de_baja_articulo_por_id(id, session: Session = Depends(get_session)):
     articulo = obtener_por_id(Articulo, id, session)
-    estado_anterior = articulo.json()
     articulo.esta_activo = False
     session.add(articulo)
     session.commit()
     session.refresh(articulo)
-    registrar_accion(session, CLASE_ARTICULO, id, ACCION_ELIMINACION, estado_anterior, articulo.json())
+    registrar_accion(session, CLASE_ARTICULO, id, ACCION_ELIMINACION, articulo.json())
     return articulo
 
 
