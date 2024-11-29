@@ -17,7 +17,7 @@ CLASE_CAMBIO = "cambio"
 @router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
 def eliminar_cambio_por_id(id, session: Session = Depends(get_session)):
     eliminar_por_id(Cambio, id, session)
-    registrar_accion(session, CLASE_CAMBIO, id, ACCION_ELIMINACION, None, None)
+    registrar_accion(session, CLASE_CAMBIO, id, ACCION_ELIMINACION, "")
 
 @router.get("/{id}", response_model=CambioPublico)
 def obtener_cambio_por_id(id, session: Session = Depends(get_session)):
@@ -55,7 +55,7 @@ def crear_cambio(cambio_form: CambioForm, session: Session = Depends(get_session
     session.add(cambio)
     session.commit()
     session.refresh(cambio)
-    registrar_accion(session, CLASE_CAMBIO, cambio.id, ACCION_CREACION, None, cambio.json())
+    registrar_accion(session, CLASE_CAMBIO, cambio.id, ACCION_CREACION, cambio.json())
     return cambio
 
 @router.patch("/{id}")
@@ -63,7 +63,6 @@ def actualizar_cambio(
     id, cambio_form: CambioUpdateForm, session: Session = Depends(get_session)
 ):
     cambio = obtener_por_id(Cambio, id, session)
-    estado_anterior = cambio.json()
     cambio_nueva_data = cambio_form.model_dump(exclude_unset=True)
 
     cambio.sqlmodel_update(cambio_nueva_data)
@@ -71,5 +70,5 @@ def actualizar_cambio(
     session.commit()
     session.refresh(cambio)
     cambio_respuesta = cambio.copy()
-    registrar_accion(session, CLASE_CAMBIO, cambio.id, ACCION_ACTUALIZACION, estado_anterior, cambio.json())
+    registrar_accion(session, CLASE_CAMBIO, cambio.id, ACCION_ACTUALIZACION, cambio.json())
     return cambio_respuesta
