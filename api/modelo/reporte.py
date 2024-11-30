@@ -22,20 +22,27 @@ class ReporteIncidentes(BaseModel):
     categoria: Optional[Dict[str, int]] = Field(default=None)
     articulo: Optional[Dict[str, int]] = Field(default=None)
 
+class ReportesIncidentes(BaseModel):
+    generales: Optional[ReporteIncidentes] = Field(default=None)
+    personales: Optional[ReporteIncidentes] = Field(default=None)
+
 class ReporteProblemas(BaseModel):
     categoria: Optional[Dict[str, int]] = Field(default=None)
     estado: Optional[Dict[str, int]] = Field(default=None)
     incidente: Optional[Dict[str, int]] = Field(default=None)
+
+class ReportesProblemas(BaseModel):
+    generales: Optional[ReporteProblemas] = Field(default=None)
+    personales: Optional[ReporteProblemas] = Field(default=None)
 
 class ReporteErrores(BaseModel):
     incidente: Optional[Dict[str, int]] = Field(default=None)
     problema: Optional[Dict[str, int]] = Field(default=None)
 
 
-
 class Reporte(BaseModel):
     articulos: Optional[ReporteArticulos] = Field(default=None)
     cambios: Optional[ReporteCambios] = Field(default=None)
-    incidentes: Optional[ReporteIncidentes] = Field(default=None)
-    problemas: Optional[ReporteProblemas] = Field(default=None)
+    incidentes: Optional[ReportesIncidentes] = Field(default=None)
+    problemas: Optional[ReportesProblemas] = Field(default=None)
     errores: Optional[ReporteErrores] = Field(default=None)
