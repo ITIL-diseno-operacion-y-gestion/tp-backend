@@ -2,11 +2,12 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlmodel import Session, select
 from sqlalchemy import cast, Date
 from ..db import get_session
-from ..modelo.reporte import Reporte, ReporteArticulos, ReporteCambios, ReporteIncidentes, ReporteProblemas, ReporteErrores
+from ..modelo.reporte import Reporte, ReporteArticulos, ReporteCambios, ReporteIncidentes, ReportesProblemas, ReporteProblemas, ReporteErrores, ReportesIncidentes
 from ..modelo.articulo import Articulo
 from ..modelo.cambio import Cambio
 from ..modelo.incidente import Incidente
 from ..modelo.problema import Problema
+from ..modelo.problema_incidente_link import ProblemaIncidenteLink
 from ..modelo.error_conocido import ErrorConocido
 import secrets
 import string
@@ -49,12 +50,14 @@ def crearReporteCambios(desde, hasta, session):
     reporteCambios.articulo = Counter(articulo.id for cambio in cambios for articulo in cambio.articulos_afectados)
     return reporteCambios
 
-def crearReporteIncidentes(desde, hasta, session):
+def crearReporteIncidentes(id_agente_asignado, desde, hasta, session):
     query = select(Incidente)
     if desde is not None:
         query = query.where(Incidente.fecha_de_alta >= desde)
     if hasta is not None:
         query = query.where(Incidente.fecha_de_alta <= hasta)
+    if id_agente_asignado is not None:
+        query = query.where(Incidente.id_agente_asignado == id_agente_asignado)
     incidentes = session.exec(query).all()
 
     reporteIncidentes = ReporteIncidentes()
@@ -63,14 +66,20 @@ def crearReporteIncidentes(desde, hasta, session):
     reporteIncidentes.articulo = Counter(articulo.id for incidente in incidentes for articulo in incidente.articulos_afectados)
     return reporteIncidentes
 
-def crearReporteProblemas(desde, hasta, session):
+def crearReporteProblemas(id_agente_asignado, desde, hasta, session):
     query = select(Problema)
     if desde is not None:
         query = query.where(cast(Problema.fecha_de_deteccion, Date) >= desde)
     if hasta is not None:
         query = query.where(cast(Problema.fecha_de_deteccion, Date) <= hasta)
+    if id_agente_asignado is not None:
+        query = (
+            query
+            .join(ProblemaIncidenteLink)
+            .join(Incidente)
+            .where(Incidente.id_agente_asignado == id_agente_asignado)
+        )
     problemas = session.exec(query).all()
-
     reporteProblemas = ReporteProblemas()
     reporteProblemas.categoria = Counter(problema.categoria for problema in problemas)
     reporteProblemas.estado = Counter(problema.estado for problema in problemas)
@@ -95,6 +104,7 @@ def crearReporteErrores(desde, hasta, session):
 def obtener_reporte(
     desde: Optional[date] = None,
     hasta: Optional[date] = None,
+    id_agente_asignado: Optional[int] = None,
     session: Session = Depends(get_session)
 ):
     reporte = Reporte()
@@ -103,9 +113,16 @@ def obtener_reporte(
 
     reporte.cambios = crearReporteCambios(desde, hasta, session)
 
-    reporte.incidentes = crearReporteIncidentes(desde, hasta, session)
+    reporte.incidentes = ReportesIncidentes()
+    reporte.problemas = ReportesProblemas()
 
-    reporte.problemas = crearReporteProblemas(desde, hasta, session)
+    reporte.incidentes.generales = crearReporteIncidentes(None, desde, hasta, session)
+    reporte.problemas.generales = crearReporteProblemas(None, desde, hasta, session)
+
+    if (id_agente_asignado) :
+        reporte.incidentes.personales = crearReporteIncidentes(id_agente_asignado, desde, hasta, session)
+        reporte.problemas.personales = crearReporteProblemas(id_agente_asignado, desde, hasta, session)
+
 
     reporte.errores = crearReporteErrores(desde, hasta, session)
 
