@@ -122,6 +122,12 @@ def obtener_reporte(
     if (id_agente_asignado) :
         reporte.incidentes.personales = crearReporteIncidentes(id_agente_asignado, desde, hasta, session)
         reporte.problemas.personales = crearReporteProblemas(id_agente_asignado, desde, hasta, session)
+    else:
+        reporteIncidentesPersonales = ReporteIncidentes()
+        reporte.incidentes.personales = reporteIncidentesPersonales
+
+        reporteProblemasPersonales = ReporteProblemas()
+        reporte.problemas.personales = reporteProblemasPersonales
 
 
     reporte.errores = crearReporteErrores(desde, hasta, session)
