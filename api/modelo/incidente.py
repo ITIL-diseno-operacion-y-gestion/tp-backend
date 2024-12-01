@@ -29,6 +29,12 @@ class Categoria(Enum):
     DE_DATOS = "de datos"
     LEGAL = "legal"
 
+class Estado(Enum):
+    DETECTADO = "detectado"
+    ANALIZANDOSE = "analizandose"
+    ASIGNADO = "asignado"
+    RESUELTO = "resuelto"
+    CERRADO = "cerrado"
 
 class IncidenteBase(SQLModel):
     id_usuario: int = Field(default=None, foreign_key="usuarios.id")
@@ -40,6 +46,7 @@ class IncidenteBase(SQLModel):
     informacion_adicional: str
     conformidad_resolucion: Optional[int]  = Field(default=None, nullable=True)
     id_agente_asignado: Optional[int]  = Field(default=None, nullable=True)
+    estado: Optional[Estado] = Field(default=None, nullable=True)
 
 class IncidentePatchForm(SQLModel):
     id_agente_asignado: Optional[int] = Field(default=None)
@@ -52,6 +59,7 @@ class IncidentePatchForm(SQLModel):
     informacion_adicional: Optional[str] = Field(default=None)
     conformidad_resolucion: Optional[int]  = Field(default=None, nullable=True)
     id_agente_asignado: Optional[int]  = Field(default=None, nullable=True)
+    estado: Optional[Estado] = Field(default=None, nullable=True)
 
 class IncidenteForm(IncidenteBase):
     ids_articulos: List[int]
