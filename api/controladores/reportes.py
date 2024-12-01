@@ -15,7 +15,6 @@ from typing import Optional
 from datetime import date
 from collections import Counter
 
-NON_EXISTENT_AGENTE_ID = -1
 
 router = APIRouter(
     prefix="/reportes",
