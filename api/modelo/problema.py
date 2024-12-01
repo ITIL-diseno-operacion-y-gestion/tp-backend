@@ -69,3 +69,4 @@ class ProblemaUpdateForm(BaseModel):
     prioridad: Optional[Prioridad] = None
     categoria: Optional[Categoria] = None
     estado: Optional[Estado] = None
+    ids_incidentes: List[int] = None

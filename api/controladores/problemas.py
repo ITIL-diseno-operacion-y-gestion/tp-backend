@@ -36,24 +36,27 @@ def obtener_problema_por_id(id, session: Session = Depends(get_session)):
 def obtener_problemas(session: Session = Depends(get_session)):
     return session.exec(select(Problema)).all()
 
-
-@router.post("/problemas", response_model=ProblemaPublico)
-def crear_problema(
-    problema_form: ProblemaForm, session: Session = Depends(get_session)
-):
-    if len(problema_form.ids_incidentes) < 1:
+def obtener_incidentes(ids_incidentes, session):
+    if len(ids_incidentes) < 1:
         raise HTTPException(
             status_code=422, detail="Se debe ingresar al menos un incidente"
         )
 
     incidentes = session.exec(
-        select(Incidente).where(Incidente.id.in_(problema_form.ids_incidentes))
+        select(Incidente).where(Incidente.id.in_(ids_incidentes))
     ).all()
 
-    if len(incidentes) != len(problema_form.ids_incidentes):
+    if len(incidentes) != len(ids_incidentes):
         raise HTTPException(
             status_code=422, detail="Alguno de los incidentes no fue encontrado"
         )
+    return incidentes
+
+@router.post("/problemas", response_model=ProblemaPublico)
+def crear_problema(
+    problema_form: ProblemaForm, session: Session = Depends(get_session)
+):
+    incidentes = obtener_incidentes(problema_form.ids_incidentes, session)
 
     problema = Problema.model_validate(problema_form)
     problema.incidentes = incidentes
@@ -71,6 +74,11 @@ def actualizar_problema(
     id, problema_form: ProblemaUpdateForm, session: Session = Depends(get_session)
 ):
     problema = obtener_por_id(Problema, id, session)
+
+    if problema_form.ids_incidentes != None:
+        incidentes = obtener_incidentes(problema_form.ids_incidentes, session)
+        problema.incidentes = incidentes
+
     problema_nueva_data = problema_form.model_dump(exclude_unset=True)
     if problema.estado != Estado.RESUELTO and problema_form.estado == Estado.RESUELTO:
         problema_nueva_data["fecha_de_resolucion"] = datetime.now()
