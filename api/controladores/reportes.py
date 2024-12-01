@@ -15,6 +15,7 @@ from typing import Optional
 from datetime import date
 from collections import Counter
 
+NON_EXISTENT_AGENTE_ID = -1
 
 router = APIRouter(
     prefix="/reportes",
@@ -122,6 +123,12 @@ def obtener_reporte(
     if (id_agente_asignado) :
         reporte.incidentes.personales = crearReporteIncidentes(id_agente_asignado, desde, hasta, session)
         reporte.problemas.personales = crearReporteProblemas(id_agente_asignado, desde, hasta, session)
+    else:
+        reporteIncidentesPersonales = ReporteIncidentes()
+        reporte.incidentes.personales = reporteIncidentesPersonales
+
+        reporteProblemasPersonales = ReporteProblemas()
+        reporte.problemas.personales = reporteProblemasPersonales
 
 
     reporte.errores = crearReporteErrores(desde, hasta, session)
