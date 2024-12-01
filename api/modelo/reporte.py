@@ -10,17 +10,20 @@ from typing import Dict
 class ReporteArticulos(BaseModel):
     tipo: Optional[Dict[str, int]] = Field(default={})
     estado: Optional[Dict[str, int]] = Field(default={})
+    total: Optional[int] = Field(default=0)
 
 class ReporteCambios(BaseModel):
     estado: Optional[Dict[str, int]] = Field(default={})
     prioridad: Optional[Dict[str, int]] = Field(default={})
     categoria: Optional[Dict[str, int]] = Field(default={})
     articulo: Optional[Dict[str, int]] = Field(default={})
+    total: Optional[int] = Field(default=0)
 
 class ReporteIncidentes(BaseModel):
     prioridad: Optional[Dict[str, int]] = Field(default={})
     categoria: Optional[Dict[str, int]] = Field(default={})
     articulo: Optional[Dict[str, int]] = Field(default={})
+    total: Optional[int] = Field(default=0)
 
 class ReportesIncidentes(BaseModel):
     generales: Optional[ReporteIncidentes] = Field(default=ReporteIncidentes)
@@ -30,6 +33,7 @@ class ReporteProblemas(BaseModel):
     categoria: Optional[Dict[str, int]] = Field(default={})
     estado: Optional[Dict[str, int]] = Field(default={})
     incidente: Optional[Dict[str, int]] = Field(default={})
+    total: Optional[int] = Field(default=0)
 
 class ReportesProblemas(BaseModel):
     generales: Optional[ReporteProblemas] = Field(default=ReporteProblemas)
@@ -38,6 +42,7 @@ class ReportesProblemas(BaseModel):
 class ReporteErrores(BaseModel):
     incidente: Optional[Dict[str, int]] = Field(default={})
     problema: Optional[Dict[str, int]] = Field(default={})
+    total: Optional[int] = Field(default=0)
 
 
 class Reporte(BaseModel):

@@ -32,6 +32,7 @@ def crearReporteArticulos(desde, hasta, session):
     reporteArticulos = ReporteArticulos()
     reporteArticulos.tipo = Counter(articulo.tipo for articulo in articulos)
     reporteArticulos.estado = Counter(articulo.estado for articulo in articulos)
+    reporteArticulos.total = len(articulos)
     return reporteArticulos
 
 
@@ -48,6 +49,7 @@ def crearReporteCambios(desde, hasta, session):
     reporteCambios.prioridad = Counter(cambio.prioridad for cambio in cambios)
     reporteCambios.categoria = Counter(cambio.categoria for cambio in cambios)
     reporteCambios.articulo = Counter(articulo.id for cambio in cambios for articulo in cambio.articulos_afectados)
+    reporteCambios.total = len(cambios)
     return reporteCambios
 
 def crearReporteIncidentes(id_agente_asignado, desde, hasta, session):
@@ -64,6 +66,7 @@ def crearReporteIncidentes(id_agente_asignado, desde, hasta, session):
     reporteIncidentes.prioridad = Counter(incidente.prioridad for incidente in incidentes)
     reporteIncidentes.categoria = Counter(incidente.categoria for incidente in incidentes)
     reporteIncidentes.articulo = Counter(articulo.id for incidente in incidentes for articulo in incidente.articulos_afectados)
+    reporteIncidentes.total = len(incidentes)
     return reporteIncidentes
 
 def crearReporteProblemas(id_agente_asignado, desde, hasta, session):
@@ -84,6 +87,7 @@ def crearReporteProblemas(id_agente_asignado, desde, hasta, session):
     reporteProblemas.categoria = Counter(problema.categoria for problema in problemas)
     reporteProblemas.estado = Counter(problema.estado for problema in problemas)
     reporteProblemas.incidente = Counter(incidente.id for problema in problemas for incidente in problema.incidentes)
+    reporteProblemas.total = len(problemas)
     return reporteProblemas
 
 def crearReporteErrores(desde, hasta, session):
@@ -97,6 +101,7 @@ def crearReporteErrores(desde, hasta, session):
     reporteErrores = ReporteErrores()
     reporteErrores.incidente = Counter(incidente.id for error in errores for incidente in error.incidentes)
     reporteErrores.problema = Counter(problema.id for error in errores for problema in error.problemas)
+    reporteErrores.total = len(errores)
     return reporteErrores
 
 
