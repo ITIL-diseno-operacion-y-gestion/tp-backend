@@ -110,7 +110,7 @@ def obtener_tiempo_promedio_de_resolucion(problemas):
     if len(tiempos_de_resolucion) > 0:
         tiempo_promedio_de_resolucion = sum(tiempos_de_resolucion, timedelta())/len(tiempos_de_resolucion)
         return formatear_tiempo_promedio_de_resolucion(tiempo_promedio_de_resolucion)
-    return 0
+    return ""
 
 def crearReporteProblemas(id_agente_asignado, desde, hasta, session):
     query = select(Problema)
@@ -132,6 +132,7 @@ def crearReporteProblemas(id_agente_asignado, desde, hasta, session):
     reporteProblemas.incidente = Counter(incidente.id for problema in problemas for incidente in problema.incidentes)
 
     reporteProblemas.tiempo_promedio_resolucion = obtener_tiempo_promedio_de_resolucion(problemas)
+    print("reporteProblemas.tiempo_promedio_resolucion: ", reporteProblemas.tiempo_promedio_resolucion)
     reporteProblemas.total = len(problemas)
 
     return reporteProblemas
