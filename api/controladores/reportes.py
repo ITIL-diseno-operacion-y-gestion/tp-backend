@@ -58,7 +58,9 @@ def obtenerConformidadResolucionPromedio(incidentes):
         if incidente.conformidad_resolucion is not None:
             valores_conformidad.append(int(incidente.conformidad_resolucion))
     print("valores_conformidad: ", valores_conformidad)
-    return sum(valores_conformidad)/len(valores_conformidad)
+    if len(valores_conformidad) > 0:
+        return sum(valores_conformidad)/len(valores_conformidad)
+    return 0
 
 
 def crearReporteIncidentes(id_agente_asignado, desde, hasta, session):
