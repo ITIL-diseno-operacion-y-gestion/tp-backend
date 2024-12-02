@@ -12,7 +12,7 @@ from ..modelo.error_conocido import ErrorConocido
 import secrets
 import string
 from typing import Optional
-from datetime import date
+from datetime import date, datetime, timedelta
 from collections import Counter
 
 
@@ -69,6 +69,37 @@ def crearReporteIncidentes(id_agente_asignado, desde, hasta, session):
     reporteIncidentes.total = len(incidentes)
     return reporteIncidentes
 
+
+FORMATO_FECHA = "%Y-%m-%d %H:%M:%S.%f"
+
+def obtener_tiempos_de_resolucion(problemas):
+    tiempos_de_resolucion = []
+    print("empiezo analisis")
+    for problema in problemas:
+        print("analizo problema pendiente: ", problema)
+        if problema.fecha_de_resolucion is not None:
+            print("analizo problema resuelto: ", problema)
+            fecha_de_resolucion = datetime.strptime(problema.fecha_de_resolucion, FORMATO_FECHA)
+            fecha_de_deteccion = datetime.strptime(problema.fecha_de_deteccion, FORMATO_FECHA)
+            tiempos_de_resolucion.append(fecha_de_resolucion - fecha_de_deteccion)
+    return tiempos_de_resolucion
+
+def formatear_tiempo_promedio_de_resolucion(tiempo_promedio_resolucion):
+    dias = tiempo_promedio_resolucion.days
+    segundos_totales = tiempo_promedio_resolucion.seconds
+    horas = segundos_totales // 3600
+    minutos = (segundos_totales % 3600) // 60
+    segundos = segundos_totales % 60
+    return f"{dias} d, {horas:02}:{minutos:02}:{segundos:02}"
+
+def obtener_tiempo_promedio_de_resolucion(problemas):
+    tiempos_de_resolucion = obtener_tiempos_de_resolucion(problemas)
+
+    if len(tiempos_de_resolucion) > 0:
+        tiempo_promedio_de_resolucion = sum(tiempos_de_resolucion, timedelta())/len(tiempos_de_resolucion)
+        return formatear_tiempo_promedio_de_resolucion(tiempo_promedio_de_resolucion)
+    return 0
+
 def crearReporteProblemas(id_agente_asignado, desde, hasta, session):
     query = select(Problema)
     if desde is not None:
@@ -87,7 +118,12 @@ def crearReporteProblemas(id_agente_asignado, desde, hasta, session):
     reporteProblemas.categoria = Counter(problema.categoria for problema in problemas)
     reporteProblemas.estado = Counter(problema.estado for problema in problemas)
     reporteProblemas.incidente = Counter(incidente.id for problema in problemas for incidente in problema.incidentes)
+
+    tiempo_promedio_de_resolucion = obtener_tiempo_promedio_de_resolucion(problemas)
+    reporteProblemas.tiempo_promedio_resolucion = tiempo_promedio_de_resolucion
+
     reporteProblemas.total = len(problemas)
+
     return reporteProblemas
 
 def crearReporteErrores(desde, hasta, session):
