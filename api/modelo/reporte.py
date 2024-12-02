@@ -6,6 +6,7 @@ from .articulo_incidente_link import ArticuloIncidenteLink
 from .articulo_cambio_link import ArticuloCambioLink
 from pydantic import BaseModel
 from typing import Dict
+from datetime import datetime, timedelta
 
 class ReporteArticulos(BaseModel):
     tipo: Optional[Dict[str, int]] = Field(default={})
@@ -34,6 +35,7 @@ class ReporteProblemas(BaseModel):
     estado: Optional[Dict[str, int]] = Field(default={})
     incidente: Optional[Dict[str, int]] = Field(default={})
     total: Optional[int] = Field(default=0)
+    tiempo_promedio_resolucion: Optional[str] = Field(default=None)
 
 class ReportesProblemas(BaseModel):
     generales: Optional[ReporteProblemas] = Field(default=ReporteProblemas)
