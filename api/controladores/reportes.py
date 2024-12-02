@@ -52,6 +52,15 @@ def crearReporteCambios(desde, hasta, session):
     reporteCambios.total = len(cambios)
     return reporteCambios
 
+def obtenerConformidadResolucionPromedio(incidentes):
+    valores_conformidad = []
+    for incidente in incidentes:
+        if incidente.conformidad_resolucion is not None:
+            valores_conformidad.append(int(incidente.conformidad_resolucion))
+    print("valores_conformidad: ", valores_conformidad)
+    return sum(valores_conformidad)/len(valores_conformidad)
+
+
 def crearReporteIncidentes(id_agente_asignado, desde, hasta, session):
     query = select(Incidente)
     if desde is not None:
@@ -66,6 +75,7 @@ def crearReporteIncidentes(id_agente_asignado, desde, hasta, session):
     reporteIncidentes.prioridad = Counter(incidente.prioridad for incidente in incidentes)
     reporteIncidentes.categoria = Counter(incidente.categoria for incidente in incidentes)
     reporteIncidentes.articulo = Counter(articulo.id for incidente in incidentes for articulo in incidente.articulos_afectados)
+    reporteIncidentes.conformidad_resolucion_promedio = obtenerConformidadResolucionPromedio(incidentes)
     reporteIncidentes.total = len(incidentes)
     return reporteIncidentes
 
@@ -119,9 +129,7 @@ def crearReporteProblemas(id_agente_asignado, desde, hasta, session):
     reporteProblemas.estado = Counter(problema.estado for problema in problemas)
     reporteProblemas.incidente = Counter(incidente.id for problema in problemas for incidente in problema.incidentes)
 
-    tiempo_promedio_de_resolucion = obtener_tiempo_promedio_de_resolucion(problemas)
-    reporteProblemas.tiempo_promedio_resolucion = tiempo_promedio_de_resolucion
-
+    reporteProblemas.tiempo_promedio_resolucion = obtener_tiempo_promedio_de_resolucion(problemas)
     reporteProblemas.total = len(problemas)
 
     return reporteProblemas

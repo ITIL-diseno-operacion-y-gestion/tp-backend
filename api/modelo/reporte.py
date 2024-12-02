@@ -24,6 +24,7 @@ class ReporteIncidentes(BaseModel):
     prioridad: Optional[Dict[str, int]] = Field(default={})
     categoria: Optional[Dict[str, int]] = Field(default={})
     articulo: Optional[Dict[str, int]] = Field(default={})
+    conformidad_resolucion_promedio: Optional[int] = Field(default=0)
     total: Optional[int] = Field(default=0)
 
 class ReportesIncidentes(BaseModel):
