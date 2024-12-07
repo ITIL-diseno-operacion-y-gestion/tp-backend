@@ -6,6 +6,7 @@ from ..modelo.articulo import Articulo
 from ..modelo.usuario import Usuario
 from datetime import datetime
 from ..modelo.auditoria import registrar_accion, ACCION_CREACION, ACCION_ELIMINACION, ACCION_ACTUALIZACION
+from typing import Optional
 
 router = APIRouter(
     prefix="/incidentes",
@@ -38,9 +39,8 @@ def obtener_incidente_por_id(id, incidente_form: IncidentePatchForm, session: Se
 
 
 @router.get("")
-def obtener_incidentes(session: Session = Depends(get_session)):
-    incidentes = session.exec(select(Incidente)).all()
-    return incidentes
+def obtener_incidentes(id_usuario: Optional[int] = None, session: Session = Depends(get_session)):
+    return session.exec(select(Incidente).where(Incidente.id_usuario == id_usuario)).all()
 
 
 @router.post("", response_model=IncidentePublico)
