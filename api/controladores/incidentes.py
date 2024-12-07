@@ -40,7 +40,10 @@ def obtener_incidente_por_id(id, incidente_form: IncidentePatchForm, session: Se
 
 @router.get("")
 def obtener_incidentes(id_usuario: Optional[int] = None, session: Session = Depends(get_session)):
-    return session.exec(select(Incidente).where(Incidente.id_usuario == id_usuario)).all()
+    query = select(Incidente)
+    if id_usuario is not None:
+        query = query.where(Incidente.id_usuario == id_usuario)
+    return session.exec(query).all()
 
 
 @router.post("", response_model=IncidentePublico)
