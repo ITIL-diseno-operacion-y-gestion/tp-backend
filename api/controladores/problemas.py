@@ -68,6 +68,11 @@ def crear_problema(
     registrar_accion(session, CLASE_PROBLEMA, problema.id, ACCION_CREACION, problema.json())
     return problema
 
+def resolver_incidentes_asociados(incidentes, session):
+    print("deberia resolver: ", incidentes)
+    for incidente in incidentes:
+        incidente.estado = Estado.RESUELTO.value
+
 
 @router.patch("/problemas/{id}")
 def actualizar_problema(
@@ -75,13 +80,17 @@ def actualizar_problema(
 ):
     problema = obtener_por_id(Problema, id, session)
 
+    incidentes = []
     if problema_form.ids_incidentes != None:
         incidentes = obtener_incidentes(problema_form.ids_incidentes, session)
         problema.incidentes = incidentes
+    else:
+        incidentes = problema.incidentes
 
     problema_nueva_data = problema_form.model_dump(exclude_unset=True)
     if problema.estado != Estado.RESUELTO and problema_form.estado == Estado.RESUELTO:
         problema_nueva_data["fecha_de_resolucion"] = datetime.now()
+        resolver_incidentes_asociados(incidentes, session)
     problema.sqlmodel_update(problema_nueva_data)
     session.add(problema)
     session.commit()
