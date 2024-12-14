@@ -8,7 +8,7 @@ from ..modelo.incidente import (
     IncidentePublico,
 )
 from ..modelo.articulo import Articulo
-from ..modelo.usuario import Usuario
+from ..modelo.usuario import Usuario, UsuarioPublico
 from datetime import datetime
 from ..modelo.auditoria import (
     registrar_accion,
@@ -61,7 +61,15 @@ def obtener_incidentes(
     query = select(Incidente)
     if id_usuario is not None:
         query = query.where(Incidente.id_usuario == id_usuario)
-    return session.exec(query).all()
+    incidentes = session.exec(query).all()
+    incidentes_dict = []
+    for incidente in incidentes:
+        agente_asignado = session.exec(select(Usuario).where(Usuario.id == incidente.id_agente_asignado)).first()
+        incidente_dict = incidente.__dict__
+        incidente_dict.pop("id_agente_asignado")
+        incidente_dict["agente_asignado"] = UsuarioPublico.model_validate(agente_asignado) if agente_asignado else None
+        incidentes_dict.append(incidente_dict)
+    return incidentes_dict
 
 
 @router.post("", response_model=IncidentePublico)
