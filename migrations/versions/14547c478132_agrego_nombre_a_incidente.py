@@ -5,16 +5,15 @@ Revises: f64534333474
 Create Date: 2024-11-15 22:15:15.190592
 
 """
+
 from typing import Sequence, Union
 
 from alembic import op
 import sqlalchemy as sa
-import sqlmodel
-from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
-revision: str = '14547c478132'
-down_revision: Union[str, None] = 'f64534333474'
+revision: str = "14547c478132"
+down_revision: Union[str, None] = "f64534333474"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 

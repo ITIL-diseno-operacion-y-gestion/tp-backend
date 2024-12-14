@@ -5,16 +5,15 @@ Revises: 7b8efbb17cbf
 Create Date: 2024-11-29 22:36:40.473569
 
 """
+
 from typing import Sequence, Union
 
 from alembic import op
 import sqlalchemy as sa
-import sqlmodel
-from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
-revision: str = '7856b6e36147'
-down_revision: Union[str, None] = '7b8efbb17cbf'
+revision: str = "7856b6e36147"
+down_revision: Union[str, None] = "7b8efbb17cbf"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 

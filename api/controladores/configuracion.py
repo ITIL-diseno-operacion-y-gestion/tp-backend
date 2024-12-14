@@ -1,10 +1,15 @@
-from fastapi import APIRouter, Depends, Query, status
+from fastapi import APIRouter, Depends, status
 from sqlmodel import Session, select
-from ..db import get_session, obtener_por_id, eliminar_por_id
+from ..db import get_session, obtener_por_id
 from ..modelo.articulo import Articulo, ArticuloForm, ArticuloUpdate
 from ..modelo.usuario import Usuario
 from datetime import datetime
-from ..modelo.auditoria import registrar_accion, ACCION_CREACION, ACCION_ELIMINACION, ACCION_ACTUALIZACION
+from ..modelo.auditoria import (
+    registrar_accion,
+    ACCION_CREACION,
+    ACCION_ELIMINACION,
+    ACCION_ACTUALIZACION,
+)
 
 router = APIRouter(
     prefix="/configuracion",
@@ -12,7 +17,7 @@ router = APIRouter(
 )
 
 CLASE_ARTICULO = "articulo"
-    
+
 
 @router.get("/articulos/{id}")
 def obtener_articulo_por_id(id, session: Session = Depends(get_session)):
@@ -41,7 +46,9 @@ def crear_articulo(
     session.commit()
     session.refresh(articulo)
     articulo_respuesta = articulo.copy()
-    registrar_accion(session, CLASE_ARTICULO, articulo.id, ACCION_CREACION, articulo.json())
+    registrar_accion(
+        session, CLASE_ARTICULO, articulo.id, ACCION_CREACION, articulo.json()
+    )
     return articulo_respuesta
 
 
@@ -67,5 +74,7 @@ def actualizar_articulo(
     session.commit()
     session.refresh(articulo)
     articulo_respuesta = articulo.copy()
-    registrar_accion(session, CLASE_ARTICULO, articulo.id, ACCION_ACTUALIZACION, articulo.json())
+    registrar_accion(
+        session, CLASE_ARTICULO, articulo.id, ACCION_ACTUALIZACION, articulo.json()
+    )
     return articulo_respuesta

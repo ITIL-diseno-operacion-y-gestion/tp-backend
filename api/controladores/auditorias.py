@@ -1,21 +1,13 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends
 from sqlmodel import Session, select
-from ..db import get_session, eliminar_por_id
-from ..modelo.usuario import (
-    Usuario,
-    UsuarioPublico,
-    UsuarioForm,
-    UsuarioLoginForm,
-    UsuarioLoginRespuesta,
-)
-from ..modelo.auditoria import Auditoria, registrar_accion, ACCION_CREACION
-import secrets
-import string
+from ..db import get_session
+from ..modelo.auditoria import Auditoria
 
 router = APIRouter(
     prefix="/auditorias",
     tags=["auditorias"],
 )
+
 
 @router.get("")
 def obtener_usuarios(session: Session = Depends(get_session)):
@@ -29,4 +21,3 @@ def obtener_usuarios(id, entidad: str, session: Session = Depends(get_session)):
     query = query.where(Auditoria.id_entidad == id)
     print("filtro por id: ", id)
     return session.exec(query).all()
-

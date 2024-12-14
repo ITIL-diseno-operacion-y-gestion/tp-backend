@@ -37,18 +37,18 @@ class ArticuloForm(SQLModel):
     relacion_items: str
     estado: Estado
 
+
 class ArticuloUpdate(SQLModel):
-    nombre : Optional[str] = None
-    descripcion : Optional[str] = None
-    id_titular : Optional[int] = None
-    tipo : Optional[Tipo] = None
-    info_fabricacion : Optional[str] = None
-    localizacion : Optional[str] = None
-    relacion_items : Optional[str] = None
-    estado : Optional[Estado] = None
+    nombre: Optional[str] = None
+    descripcion: Optional[str] = None
+    id_titular: Optional[int] = None
+    tipo: Optional[Tipo] = None
+    info_fabricacion: Optional[str] = None
+    localizacion: Optional[str] = None
+    relacion_items: Optional[str] = None
+    estado: Optional[Estado] = None
     esta_activo: Optional[bool] = None
     version: Optional[float] = None
-
 
 
 class Articulo(ArticuloForm, table=True):

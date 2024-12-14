@@ -15,17 +15,24 @@ from ..modelo.error_conocido import (
     ErrorConocidoPublico,
 )
 from datetime import datetime
-from ..modelo.auditoria import registrar_accion, ACCION_CREACION, ACCION_ACTUALIZACION, ACCION_ELIMINACION
+from ..modelo.auditoria import (
+    registrar_accion,
+    ACCION_CREACION,
+    ACCION_ACTUALIZACION,
+    ACCION_ELIMINACION,
+)
 
 CLASE_PROBLEMA = "problema"
 CLASE_ERROR = "error"
 
 router = APIRouter(tags=["Gestión de problemas"])
 
+
 @router.delete("/problemas/{id}", status_code=status.HTTP_204_NO_CONTENT)
 def eliminar_problema_por_id(id, session: Session = Depends(get_session)):
     eliminar_por_id(Problema, id, session)
     registrar_accion(session, CLASE_PROBLEMA, id, ACCION_ELIMINACION, "")
+
 
 @router.get("/problemas/{id}", response_model=ProblemaPublico)
 def obtener_problema_por_id(id, session: Session = Depends(get_session)):
@@ -35,6 +42,7 @@ def obtener_problema_por_id(id, session: Session = Depends(get_session)):
 @router.get("/problemas", response_model=list[Problema])
 def obtener_problemas(session: Session = Depends(get_session)):
     return session.exec(select(Problema)).all()
+
 
 def obtener_incidentes(ids_incidentes, session):
     if len(ids_incidentes) < 1:
@@ -52,6 +60,7 @@ def obtener_incidentes(ids_incidentes, session):
         )
     return incidentes
 
+
 @router.post("/problemas", response_model=ProblemaPublico)
 def crear_problema(
     problema_form: ProblemaForm, session: Session = Depends(get_session)
@@ -65,8 +74,16 @@ def crear_problema(
     session.add(problema)
     session.commit()
     session.refresh(problema)
-    registrar_accion(session, CLASE_PROBLEMA, problema.id, ACCION_CREACION, problema.json())
+    registrar_accion(
+        session, CLASE_PROBLEMA, problema.id, ACCION_CREACION, problema.json()
+    )
     return problema
+
+
+def resolver_incidentes_asociados(incidentes, session):
+    print("deberia resolver: ", incidentes)
+    for incidente in incidentes:
+        incidente.estado = Estado.RESUELTO
 
 
 @router.patch("/problemas/{id}")
@@ -75,19 +92,25 @@ def actualizar_problema(
 ):
     problema = obtener_por_id(Problema, id, session)
 
+    incidentes = []
     if problema_form.ids_incidentes != None:
         incidentes = obtener_incidentes(problema_form.ids_incidentes, session)
         problema.incidentes = incidentes
+    else:
+        incidentes = problema.incidentes
 
     problema_nueva_data = problema_form.model_dump(exclude_unset=True)
     if problema.estado != Estado.RESUELTO and problema_form.estado == Estado.RESUELTO:
         problema_nueva_data["fecha_de_resolucion"] = datetime.now()
+        resolver_incidentes_asociados(incidentes, session)
     problema.sqlmodel_update(problema_nueva_data)
     session.add(problema)
     session.commit()
     session.refresh(problema)
     problema_respuesta = problema.copy()
-    registrar_accion(session, CLASE_PROBLEMA, problema.id, ACCION_ACTUALIZACION, problema.json())
+    registrar_accion(
+        session, CLASE_PROBLEMA, problema.id, ACCION_ACTUALIZACION, problema.json()
+    )
     return problema_respuesta
 
 
@@ -95,6 +118,7 @@ def actualizar_problema(
 def eliminar_error_conocido_por_id(id, session: Session = Depends(get_session)):
     eliminar_por_id(ErrorConocido, id, session)
     registrar_accion(session, CLASE_ERROR, id, ACCION_ELIMINACION, "")
+
 
 @router.get("/errores-conocidos/{id}", response_model=ErrorConocidoPublico)
 def obtener_error_conocido_por_id(id, session: Session = Depends(get_session)):
@@ -137,5 +161,7 @@ def crear_error_conocido(
     session.add(error_conocido)
     session.commit()
     session.refresh(error_conocido)
-    registrar_accion(session, CLASE_ERROR, error_conocido.id, ACCION_CREACION, error_conocido.json())
+    registrar_accion(
+        session, CLASE_ERROR, error_conocido.id, ACCION_CREACION, error_conocido.json()
+    )
     return error_conocido

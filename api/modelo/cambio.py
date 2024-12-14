@@ -72,6 +72,7 @@ class CambioPublico(CambioBase):
     fecha_de_creacion: datetime
     articulos_afectados: List[Articulo] = []
 
+
 class CambioUpdateForm(SQLModel):
     nombre: Optional[str] = None
     estado: Optional[Estado] = None
