@@ -1,8 +1,8 @@
-"""Agrego nombre a incidente
+"""agrego_estado_a_incidente
 
-Revision ID: 14547c478132
-Revises: f64534333474
-Create Date: 2024-11-15 22:15:15.190592
+Revision ID: b9c7a7d1e84a
+Revises: 7856b6e36147
+Create Date: 2024-12-01 22:29:07.818416
 
 """
 
@@ -12,8 +12,8 @@ from alembic import op
 import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
-revision: str = "14547c478132"
-down_revision: Union[str, None] = "f64534333474"
+revision: str = "b9c7a7d1e84a"
+down_revision: Union[str, None] = "7856b6e36147"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
@@ -21,9 +21,9 @@ depends_on: Union[str, Sequence[str], None] = None
 def upgrade() -> None:
     op.add_column(
         "incidentes",
-        sa.Column("nombre", sa.String(50), nullable=True),
+        sa.Column("estado", sa.String(50), nullable=True),
     )
 
 
 def downgrade() -> None:
-    op.drop_column("incidentes", "nombre")
+    op.drop_column("incidentes", "estado")

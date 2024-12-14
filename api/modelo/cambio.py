@@ -71,3 +71,17 @@ class CambioPublico(CambioBase):
     nombre: Optional[str]
     fecha_de_creacion: datetime
     articulos_afectados: List[Articulo] = []
+
+
+class CambioUpdateForm(SQLModel):
+    nombre: Optional[str] = None
+    estado: Optional[Estado] = None
+    motivo_de_implementacion: Optional[str] = None
+    descripcion: Optional[str] = None
+    prioridad: Optional[Prioridad] = None
+    categoria: Optional[Categoria] = None
+    impacto: Optional[Impacto] = None
+    fecha_de_implementacion: Optional[datetime] = None
+    horas_necesarias: Optional[NonNegativeFloat] = None
+    costo_estimado: Optional[NonNegativeFloat] = None
+    riesgos_asociados: Optional[str] = None

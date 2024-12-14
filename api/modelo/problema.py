@@ -1,33 +1,13 @@
 from typing import Optional, List
 from sqlmodel import SQLModel, Field, Relationship
 from pydantic import BaseModel
-from enum import Enum
 from datetime import datetime
 from .problema_incidente_link import ProblemaIncidenteLink
 from .error_conocido_problema_link import ErrorConocidoProblemaLink
 from .incidente import Incidente
-
-
-class Prioridad(Enum):
-    BAJA = "baja"
-    MEDIA = "media"
-    ALTA = "alta"
-
-
-class Estado(Enum):
-    DETECTADO = "detectado"
-    ANALIZANDOSE = "analizandose"
-    ASIGNADO = "asignado"
-    RESUELTO = "resuelto"
-    CERRADO = "cerrado"
-
-
-class Categoria(Enum):
-    DE_SEGURIDAD = "de seguridad"
-    TECNICO = "tecnico"
-    DE_DISPONIBILIDAD = "de disponibilidad"
-    DE_DATOS = "de datos"
-    LEGAL = "legal"
+from api.enums.estado import Estado
+from api.enums.categoria import Categoria
+from api.enums.prioridad import Prioridad
 
 
 class ProblemaBase(SQLModel):
@@ -69,3 +49,4 @@ class ProblemaUpdateForm(BaseModel):
     prioridad: Optional[Prioridad] = None
     categoria: Optional[Categoria] = None
     estado: Optional[Estado] = None
+    ids_incidentes: List[int] = None

@@ -1,10 +1,15 @@
-from fastapi import APIRouter, Depends, Query, status
+from fastapi import APIRouter, Depends, status
 from sqlmodel import Session, select
-from ..db import get_session, obtener_por_id, eliminar_por_id
-from ..modelo.articulo import Articulo, ArticuloForm
+from ..db import get_session, obtener_por_id
+from ..modelo.articulo import Articulo, ArticuloForm, ArticuloUpdate
 from ..modelo.usuario import Usuario
 from datetime import datetime
-from ..modelo.auditoria import registrar_accion, ACCION_CREACION, ACCION_ELIMINACION
+from ..modelo.auditoria import (
+    registrar_accion,
+    ACCION_CREACION,
+    ACCION_ELIMINACION,
+    ACCION_ACTUALIZACION,
+)
 
 router = APIRouter(
     prefix="/configuracion",
@@ -12,7 +17,7 @@ router = APIRouter(
 )
 
 CLASE_ARTICULO = "articulo"
-    
+
 
 @router.get("/articulos/{id}")
 def obtener_articulo_por_id(id, session: Session = Depends(get_session)):
@@ -41,34 +46,35 @@ def crear_articulo(
     session.commit()
     session.refresh(articulo)
     articulo_respuesta = articulo.copy()
-    registrar_accion(session, CLASE_ARTICULO, articulo.id, ACCION_CREACION, None, articulo.json())
+    registrar_accion(
+        session, CLASE_ARTICULO, articulo.id, ACCION_CREACION, articulo.json()
+    )
     return articulo_respuesta
 
 
 @router.delete("/articulos/{id}", status_code=status.HTTP_204_NO_CONTENT)
 def dar_de_baja_articulo_por_id(id, session: Session = Depends(get_session)):
     articulo = obtener_por_id(Articulo, id, session)
-    estado_anterior = articulo.json()
     articulo.esta_activo = False
     session.add(articulo)
     session.commit()
     session.refresh(articulo)
-    registrar_accion(session, CLASE_ARTICULO, id, ACCION_ELIMINACION, estado_anterior, articulo.json())
+    registrar_accion(session, CLASE_ARTICULO, id, ACCION_ELIMINACION, articulo.json())
     return articulo
 
 
-# @router.patch("/articulos/{id}")
-# def actualizar_articulo(
-#     id, articuloUpdate: ArticuloUpdate, session: Session = Depends(get_session)
-# ):
-#     articuloDb = session.exec(select(Articulo).where(Articulo.id == id)).first()
-#     articulo_orig = articuloDb
-#     if not articuloDb:
-#         raise HTTPException(status_code=404, detail="Articulo not found")
-#     articuloData = articuloUpdate.model_dump(exclude_unset=True)
-#     articuloDb.sqlmodel_update(articuloData)
-#     session.add(articuloDb)
-#     session.commit()
-#     session.refresh(articuloDb)
-#     registrar_modificacion(articulo_orig, articuloDb, "modificacion", session)
-#     return articuloDb
+@router.patch("/articulos/{id}")
+def actualizar_articulo(
+    id, articulo_update: ArticuloUpdate, session: Session = Depends(get_session)
+):
+    articulo = obtener_por_id(Articulo, id, session)
+    articulo_nueva_data = articulo_update.model_dump(exclude_unset=True)
+    articulo.sqlmodel_update(articulo_nueva_data)
+    session.add(articulo)
+    session.commit()
+    session.refresh(articulo)
+    articulo_respuesta = articulo.copy()
+    registrar_accion(
+        session, CLASE_ARTICULO, articulo.id, ACCION_ACTUALIZACION, articulo.json()
+    )
+    return articulo_respuesta
