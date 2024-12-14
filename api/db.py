@@ -23,6 +23,7 @@ def obtener_por_id(clase_entidad, id, session):
         )
     return entidad
 
+
 def eliminar_por_id(clase_entidad, id, session):
     entidad = session.exec(select(clase_entidad).where(clase_entidad.id == id)).first()
     if not entidad:

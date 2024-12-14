@@ -1,7 +1,15 @@
 from fastapi import FastAPI
 
 from .db import init_db
-from .controladores import usuarios, configuracion, incidentes, problemas, cambios, reportes, auditorias
+from .controladores import (
+    usuarios,
+    configuracion,
+    incidentes,
+    problemas,
+    cambios,
+    reportes,
+    auditorias,
+)
 
 
 app = FastAPI(

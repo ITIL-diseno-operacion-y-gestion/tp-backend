@@ -4,6 +4,7 @@ from pydantic import BaseModel
 
 ROLES_VALIDOS = ["cliente", "supervisor", "agente"]
 
+
 class UsuarioBase(SQLModel):
     nombre: str
     apellido: str

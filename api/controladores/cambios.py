@@ -5,7 +5,12 @@ from ..modelo.cambio import Cambio, CambioForm, CambioPublico, CambioUpdateForm
 from ..modelo.usuario import Usuario
 from ..modelo.articulo import Articulo
 from datetime import datetime
-from ..modelo.auditoria import registrar_accion, ACCION_CREACION, ACCION_ELIMINACION, ACCION_ACTUALIZACION
+from ..modelo.auditoria import (
+    registrar_accion,
+    ACCION_CREACION,
+    ACCION_ELIMINACION,
+    ACCION_ACTUALIZACION,
+)
 
 router = APIRouter(
     prefix="/cambios",
@@ -14,10 +19,12 @@ router = APIRouter(
 
 CLASE_CAMBIO = "cambio"
 
+
 @router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
 def eliminar_cambio_por_id(id, session: Session = Depends(get_session)):
     eliminar_por_id(Cambio, id, session)
     registrar_accion(session, CLASE_CAMBIO, id, ACCION_ELIMINACION, "")
+
 
 @router.get("/{id}", response_model=CambioPublico)
 def obtener_cambio_por_id(id, session: Session = Depends(get_session)):
@@ -58,6 +65,7 @@ def crear_cambio(cambio_form: CambioForm, session: Session = Depends(get_session
     registrar_accion(session, CLASE_CAMBIO, cambio.id, ACCION_CREACION, cambio.json())
     return cambio
 
+
 @router.patch("/{id}")
 def actualizar_cambio(
     id, cambio_form: CambioUpdateForm, session: Session = Depends(get_session)
@@ -70,5 +78,7 @@ def actualizar_cambio(
     session.commit()
     session.refresh(cambio)
     cambio_respuesta = cambio.copy()
-    registrar_accion(session, CLASE_CAMBIO, cambio.id, ACCION_ACTUALIZACION, cambio.json())
+    registrar_accion(
+        session, CLASE_CAMBIO, cambio.id, ACCION_ACTUALIZACION, cambio.json()
+    )
     return cambio_respuesta

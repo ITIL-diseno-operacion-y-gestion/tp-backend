@@ -6,6 +6,9 @@ from .problema_incidente_link import ProblemaIncidenteLink
 from .articulo_incidente_link import ArticuloIncidenteLink
 from .error_conocido_incidente_link import ErrorConocidoIncidenteLink
 from .articulo import Articulo
+from api.enums.estado import Estado
+from api.enums.categoria import Categoria
+from api.enums.prioridad import Prioridad
 
 
 class FormaDeNotificacion(Enum):
@@ -16,26 +19,6 @@ class FormaDeNotificacion(Enum):
     CHAT_EN_VIVO = "chat en vivo"
 
 
-class Prioridad(Enum):
-    BAJA = "baja"
-    MEDIA = "media"
-    ALTA = "alta"
-
-
-class Categoria(Enum):
-    DE_SEGURIDAD = "de seguridad"
-    TECNICO = "tecnico"
-    DE_DISPONIBILIDAD = "de disponibilidad"
-    DE_DATOS = "de datos"
-    LEGAL = "legal"
-
-class Estado(Enum):
-    DETECTADO = "detectado"
-    ANALIZANDOSE = "analizandose"
-    ASIGNADO = "asignado"
-    RESUELTO = "resuelto"
-    CERRADO = "cerrado"
-
 class IncidenteBase(SQLModel):
     id_usuario: int = Field(default=None, foreign_key="usuarios.id")
     nombre: str
@@ -44,9 +27,10 @@ class IncidenteBase(SQLModel):
     prioridad: Prioridad
     categoria: Categoria
     informacion_adicional: str
-    conformidad_resolucion: Optional[int]  = Field(default=None, nullable=True)
-    id_agente_asignado: Optional[int]  = Field(default=None, nullable=True)
+    conformidad_resolucion: Optional[int] = Field(default=None, nullable=True)
+    id_agente_asignado: Optional[int] = Field(default=None, nullable=True)
     estado: Optional[Estado] = Field(default=None, nullable=True)
+
 
 class IncidentePatchForm(SQLModel):
     id_agente_asignado: Optional[int] = Field(default=None)
@@ -57,12 +41,14 @@ class IncidentePatchForm(SQLModel):
     prioridad: Optional[Prioridad] = Field(default=None)
     categoria: Optional[Categoria] = Field(default=None)
     informacion_adicional: Optional[str] = Field(default=None)
-    conformidad_resolucion: Optional[int]  = Field(default=None, nullable=True)
-    id_agente_asignado: Optional[int]  = Field(default=None, nullable=True)
+    conformidad_resolucion: Optional[int] = Field(default=None, nullable=True)
+    id_agente_asignado: Optional[int] = Field(default=None, nullable=True)
     estado: Optional[Estado] = Field(default=None, nullable=True)
+
 
 class IncidenteForm(IncidenteBase):
     ids_articulos: List[int]
+
 
 class Incidente(IncidenteBase, table=True):
     __tablename__ = "incidentes"
@@ -86,4 +72,4 @@ class IncidentePublico(IncidenteBase):
     fecha_de_alta: datetime
     articulos_afectados: List[Articulo] = []
     conformidad_resolucion: Optional[int]
-    nombre: Optional[str]  = Field(default=None, nullable=True)
+    nombre: Optional[str] = Field(default=None, nullable=True)
