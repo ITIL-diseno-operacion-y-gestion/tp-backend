@@ -28,7 +28,7 @@ class IncidenteBase(SQLModel):
     categoria: Categoria
     informacion_adicional: str
     id_agente_asignado: Optional[int] = Field(default=None, nullable=True)
-    estado: Optional[Estado] = Field(default=None, nullable=True)
+    estado: Estado
 
 
 class IncidenteForm(IncidenteBase):
