@@ -40,6 +40,7 @@ def obtener_incidentes(
         agente_asignado = session.exec(
             select(Usuario).where(Usuario.id == incidente.id_agente_asignado)
         ).first()
+        incidente.articulos_afectados
         incidente_dict = incidente.__dict__
         incidente_dict.pop("id_agente_asignado")
         incidente_dict["agente_asignado"] = (
@@ -108,6 +109,7 @@ def obtener_incidente(id, session: Session = Depends(get_session)):
         UsuarioPublico.model_validate(agente_asignado) if agente_asignado else None
     )
     incidente_dict.pop("id_agente_asignado")
+    incidente.articulos_afectados
     return incidente_dict
 
 
