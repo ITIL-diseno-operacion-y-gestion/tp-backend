@@ -7,7 +7,6 @@ from ..modelo.usuario import (
     UsuarioForm,
     UsuarioLoginForm,
     UsuarioLoginRespuesta,
-    ROLES_VALIDOS,
 )
 from ..modelo.auditoria import registrar_accion, ACCION_CREACION, ACCION_ELIMINACION
 import secrets
@@ -31,11 +30,6 @@ def obtener_usuarios(session: Session = Depends(get_session)):
 @router.post("")
 def crear_usuario(usuario_form: UsuarioForm, session: Session = Depends(get_session)):
     usuario = Usuario.model_validate(usuario_form)
-    if usuario.rol not in ROLES_VALIDOS:
-        raise HTTPException(
-            status_code=422,
-            detail="rol invalido",
-        )
     session.add(usuario)
     session.commit()
     session.refresh(usuario)

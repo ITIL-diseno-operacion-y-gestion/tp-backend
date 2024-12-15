@@ -27,9 +27,12 @@ class IncidenteBase(SQLModel):
     prioridad: Prioridad
     categoria: Categoria
     informacion_adicional: str
-    conformidad_resolucion: Optional[int] = Field(default=None, ge=1, le=10)
     id_agente_asignado: Optional[int] = Field(default=None, nullable=True)
     estado: Optional[Estado] = Field(default=None, nullable=True)
+
+
+class IncidenteForm(IncidenteBase):
+    ids_articulos: List[int]
 
 
 class IncidentePatchForm(SQLModel):
@@ -44,15 +47,12 @@ class IncidentePatchForm(SQLModel):
     informacion_adicional: Optional[str] = Field(default=None)
 
 
-class IncidenteForm(IncidenteBase):
-    ids_articulos: List[int]
-
-
 class Incidente(IncidenteBase, table=True):
     __tablename__ = "incidentes"
 
     id: Optional[int] = Field(default=None, primary_key=True)
     fecha_de_alta: Optional[datetime] = Field(default=None)
+    conformidad_resolucion: Optional[int] = Field(default=None, ge=1, le=10)
     problemas: List["Problema"] = Relationship(
         back_populates="incidentes", link_model=ProblemaIncidenteLink
     )

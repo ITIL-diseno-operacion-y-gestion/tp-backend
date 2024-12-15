@@ -1,15 +1,19 @@
 from typing import Optional
 from sqlmodel import SQLModel, Field
-from pydantic import BaseModel
+from enum import Enum
 
-ROLES_VALIDOS = ["cliente", "supervisor", "agente"]
+
+class Rol(Enum):
+    CLIENTE = "cliente"
+    AGENTE = "agente"
+    SUPERVISOR = "supervisor"
 
 
 class UsuarioBase(SQLModel):
     nombre: str
     apellido: str
     email: str
-    rol: str
+    rol: Rol
 
 
 class UsuarioForm(UsuarioBase):
@@ -21,15 +25,15 @@ class UsuarioPublico(SQLModel):
     nombre: str
     apellido: str
     email: str
-    rol: str
+    rol: Rol
 
 
-class UsuarioLoginForm(BaseModel):
+class UsuarioLoginForm(SQLModel):
     email: Optional[str] = None
     contrasenia: Optional[str] = None
 
 
-class UsuarioLoginRespuesta(BaseModel):
+class UsuarioLoginRespuesta(SQLModel):
     id: int
     nombre: str
     apellido: str

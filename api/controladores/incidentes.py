@@ -8,7 +8,7 @@ from ..modelo.incidente import (
     IncidentePublico,
 )
 from ..modelo.articulo import Articulo
-from ..modelo.usuario import Usuario, UsuarioPublico
+from ..modelo.usuario import Usuario, UsuarioPublico, Rol
 from datetime import datetime
 from ..modelo.auditoria import (
     registrar_accion,
@@ -52,10 +52,6 @@ def obtener_incidentes(
 def crear_incidente(
     incidente_form: IncidenteForm, session: Session = Depends(get_session)
 ):
-    print("incidente_form.ids_articulos: ", incidente_form.ids_articulos)
-    print(
-        "incidente_form.conformidad_resolucion: ", incidente_form.conformidad_resolucion
-    )
     if len(incidente_form.ids_articulos) < 1:
         raise HTTPException(
             status_code=422, detail="Se debe ingresar al menos un articulo"
@@ -71,6 +67,15 @@ def crear_incidente(
         )
 
     usuario = obtener_por_id(Usuario, incidente_form.id_usuario, session)
+    agente_asignado = (
+        obtener_por_id(Usuario, incidente_form.id_agente_asignado, session)
+        if incidente_form.id_agente_asignado
+        else None
+    )
+    if agente_asignado and agente_asignado.rol == Rol.CLIENTE:
+        raise HTTPException(
+            status_code=403, detail="El usuario asignado no es agente ni supervisor"
+        )
 
     incidente = Incidente.model_validate(incidente_form)
     incidente.articulos_afectados = articulos
@@ -85,9 +90,24 @@ def crear_incidente(
     return incidente
 
 
-@router.get("/{id}", response_model=IncidentePublico)
+@router.get("/{id}")
 def obtener_incidente(id, session: Session = Depends(get_session)):
-    return obtener_por_id(Incidente, id, session)
+    incidente = obtener_por_id(Incidente, id, session)
+    incidente_dict = incidente.__dict__
+
+    agente_asignado = (
+        session.exec(
+            select(Usuario).where(Usuario.id == incidente.id_agente_asignado)
+        ).first()
+        if incidente.id_agente_asignado
+        else None
+    )
+
+    incidente_dict["agente_asignado"] = (
+        UsuarioPublico.model_validate(agente_asignado) if agente_asignado else None
+    )
+    incidente_dict.pop("id_agente_asignado")
+    return incidente_dict
 
 
 @router.patch("/{id}", response_model=IncidentePublico)
@@ -96,6 +116,14 @@ def modificar_incidente(
 ):
     incidente = obtener_por_id(Incidente, id, session)
     incidente_actualizado = incidente_form.model_dump(exclude_unset=True)
+    agente_asignado = obtener_por_id(
+        Usuario, incidente_form.id_agente_asignado, session
+    )
+    if agente_asignado and agente_asignado.rol == Rol.CLIENTE:
+        raise HTTPException(
+            status_code=403, detail="El usuario asignado no es agente ni supervisor"
+        )
+
     incidente.sqlmodel_update(incidente_actualizado)
 
     session.add(incidente)
