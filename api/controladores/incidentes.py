@@ -34,6 +34,7 @@ def obtener_incidentes(
     if id_usuario is not None:
         query = query.where(Incidente.id_usuario == id_usuario)
     incidentes = session.exec(query).all()
+    incidentes.sort(key=lambda incidente: incidente.fecha_de_alta, reverse=True)
     incidentes_dict = []
     for incidente in incidentes:
         agente_asignado = session.exec(
