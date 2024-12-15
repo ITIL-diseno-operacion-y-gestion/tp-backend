@@ -36,10 +36,14 @@ def obtener_incidentes(
     incidentes = session.exec(query).all()
     incidentes_dict = []
     for incidente in incidentes:
-        agente_asignado = session.exec(select(Usuario).where(Usuario.id == incidente.id_agente_asignado)).first()
+        agente_asignado = session.exec(
+            select(Usuario).where(Usuario.id == incidente.id_agente_asignado)
+        ).first()
         incidente_dict = incidente.__dict__
         incidente_dict.pop("id_agente_asignado")
-        incidente_dict["agente_asignado"] = UsuarioPublico.model_validate(agente_asignado) if agente_asignado else None
+        incidente_dict["agente_asignado"] = (
+            UsuarioPublico.model_validate(agente_asignado) if agente_asignado else None
+        )
         incidentes_dict.append(incidente_dict)
     return incidentes_dict
 
@@ -82,7 +86,7 @@ def crear_incidente(
 
 
 @router.get("/{id}", response_model=IncidentePublico)
-def obtener_incidente_por_id(id, session: Session = Depends(get_session)):
+def obtener_incidente(id, session: Session = Depends(get_session)):
     return obtener_por_id(Incidente, id, session)
 
 
@@ -102,6 +106,7 @@ def modificar_incidente(
         session, CLASE_INCIDENTE, incidente.id, ACCION_ACTUALIZACION, incidente.json()
     )
     return incidente_respuesta
+
 
 @router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
 def eliminar_incidente(id, session: Session = Depends(get_session)):

@@ -28,37 +28,9 @@ CLASE_ERROR = "error"
 router = APIRouter(tags=["Gestión de problemas"])
 
 
-@router.delete("/problemas/{id}", status_code=status.HTTP_204_NO_CONTENT)
-def eliminar_problema_por_id(id, session: Session = Depends(get_session)):
-    eliminar_por_id(Problema, id, session)
-    registrar_accion(session, CLASE_PROBLEMA, id, ACCION_ELIMINACION, "")
-
-
-@router.get("/problemas/{id}", response_model=ProblemaPublico)
-def obtener_problema_por_id(id, session: Session = Depends(get_session)):
-    return obtener_por_id(Problema, id, session)
-
-
 @router.get("/problemas", response_model=list[Problema])
 def obtener_problemas(session: Session = Depends(get_session)):
     return session.exec(select(Problema)).all()
-
-
-def obtener_incidentes(ids_incidentes, session):
-    if len(ids_incidentes) < 1:
-        raise HTTPException(
-            status_code=422, detail="Se debe ingresar al menos un incidente"
-        )
-
-    incidentes = session.exec(
-        select(Incidente).where(Incidente.id.in_(ids_incidentes))
-    ).all()
-
-    if len(incidentes) != len(ids_incidentes):
-        raise HTTPException(
-            status_code=422, detail="Alguno de los incidentes no fue encontrado"
-        )
-    return incidentes
 
 
 @router.post("/problemas", response_model=ProblemaPublico)
@@ -80,10 +52,9 @@ def crear_problema(
     return problema
 
 
-def resolver_incidentes_asociados(incidentes, session):
-    print("deberia resolver: ", incidentes)
-    for incidente in incidentes:
-        incidente.estado = Estado.RESUELTO
+@router.get("/problemas/{id}", response_model=ProblemaPublico)
+def obtener_problema(id, session: Session = Depends(get_session)):
+    return obtener_por_id(Problema, id, session)
 
 
 @router.patch("/problemas/{id}")
@@ -114,15 +85,33 @@ def actualizar_problema(
     return problema_respuesta
 
 
-@router.delete("/errores-conocidos/{id}", status_code=status.HTTP_204_NO_CONTENT)
-def eliminar_error_conocido_por_id(id, session: Session = Depends(get_session)):
-    eliminar_por_id(ErrorConocido, id, session)
-    registrar_accion(session, CLASE_ERROR, id, ACCION_ELIMINACION, "")
+@router.delete("/problemas/{id}", status_code=status.HTTP_204_NO_CONTENT)
+def eliminar_problema(id, session: Session = Depends(get_session)):
+    eliminar_por_id(Problema, id, session)
+    registrar_accion(session, CLASE_PROBLEMA, id, ACCION_ELIMINACION, "")
 
 
-@router.get("/errores-conocidos/{id}", response_model=ErrorConocidoPublico)
-def obtener_error_conocido_por_id(id, session: Session = Depends(get_session)):
-    return obtener_por_id(ErrorConocido, id, session)
+def obtener_incidentes(ids_incidentes, session):
+    if len(ids_incidentes) < 1:
+        raise HTTPException(
+            status_code=422, detail="Se debe ingresar al menos un incidente"
+        )
+
+    incidentes = session.exec(
+        select(Incidente).where(Incidente.id.in_(ids_incidentes))
+    ).all()
+
+    if len(incidentes) != len(ids_incidentes):
+        raise HTTPException(
+            status_code=422, detail="Alguno de los incidentes no fue encontrado"
+        )
+    return incidentes
+
+
+def resolver_incidentes_asociados(incidentes, session):
+    print("deberia resolver: ", incidentes)
+    for incidente in incidentes:
+        incidente.estado = Estado.RESUELTO
 
 
 @router.get("/errores-conocidos")
@@ -165,3 +154,14 @@ def crear_error_conocido(
         session, CLASE_ERROR, error_conocido.id, ACCION_CREACION, error_conocido.json()
     )
     return error_conocido
+
+
+@router.get("/errores-conocidos/{id}", response_model=ErrorConocidoPublico)
+def obtener_error_conocido(id, session: Session = Depends(get_session)):
+    return obtener_por_id(ErrorConocido, id, session)
+
+
+@router.delete("/errores-conocidos/{id}", status_code=status.HTTP_204_NO_CONTENT)
+def eliminar_error_conocido(id, session: Session = Depends(get_session)):
+    eliminar_por_id(ErrorConocido, id, session)
+    registrar_accion(session, CLASE_ERROR, id, ACCION_ELIMINACION, "")

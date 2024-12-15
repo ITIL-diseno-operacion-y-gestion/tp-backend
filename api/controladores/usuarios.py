@@ -21,12 +21,6 @@ router = APIRouter(
 )
 
 
-@router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
-def eliminar_usuario_por_id(id, session: Session = Depends(get_session)):
-    eliminar_por_id(Usuario, id, session)
-    registrar_accion(session, CLASE_USUARIO, id, ACCION_ELIMINACION, "")
-
-
 @router.get("", response_model=list[UsuarioPublico])
 def obtener_usuarios(session: Session = Depends(get_session)):
     print("entre a obtener_usuarios")
@@ -63,7 +57,7 @@ def generar_random_token(length=32):
 
 
 @router.post("/login")
-def login_usuario(
+def logear_usuario(
     usuario_form: UsuarioLoginForm, session: Session = Depends(get_session)
 ):
     usuario = session.exec(
@@ -84,3 +78,9 @@ def login_usuario(
         token=generar_random_token(),
         rol=usuario.rol,
     )
+
+
+@router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
+def eliminar_usuario(id, session: Session = Depends(get_session)):
+    eliminar_por_id(Usuario, id, session)
+    registrar_accion(session, CLASE_USUARIO, id, ACCION_ELIMINACION, "")
