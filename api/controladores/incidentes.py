@@ -26,34 +26,6 @@ router = APIRouter(
 CLASE_INCIDENTE = "incidente"
 
 
-@router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
-def eliminar_incidente_por_id(id, session: Session = Depends(get_session)):
-    eliminar_por_id(Incidente, id, session)
-    registrar_accion(session, CLASE_INCIDENTE, id, ACCION_ELIMINACION, "")
-
-
-@router.get("/{id}", response_model=IncidentePublico)
-def obtener_incidente_por_id(id, session: Session = Depends(get_session)):
-    return obtener_por_id(Incidente, id, session)
-
-
-@router.patch("/{id}", response_model=IncidentePublico)
-def obtener_incidente_por_id(
-    id, incidente_form: IncidentePatchForm, session: Session = Depends(get_session)
-):
-    incidente = obtener_por_id(Incidente, id, session)
-    incidente_nueva_data = incidente_form.model_dump(exclude_unset=True)
-    incidente.sqlmodel_update(incidente_nueva_data)
-    session.add(incidente)
-    session.commit()
-    session.refresh(incidente)
-    incidente_respuesta = IncidentePublico.from_orm(incidente)
-    registrar_accion(
-        session, CLASE_INCIDENTE, incidente.id, ACCION_ACTUALIZACION, incidente.json()
-    )
-    return incidente_respuesta
-
-
 @router.get("")
 def obtener_incidentes(
     id_usuario: Optional[int] = None, session: Session = Depends(get_session)
@@ -107,3 +79,31 @@ def crear_incidente(
         session, CLASE_INCIDENTE, incidente.id, ACCION_CREACION, incidente.json()
     )
     return incidente
+
+
+@router.get("/{id}", response_model=IncidentePublico)
+def obtener_incidente_por_id(id, session: Session = Depends(get_session)):
+    return obtener_por_id(Incidente, id, session)
+
+
+@router.patch("/{id}", response_model=IncidentePublico)
+def modificar_incidente(
+    id, incidente_form: IncidentePatchForm, session: Session = Depends(get_session)
+):
+    incidente = obtener_por_id(Incidente, id, session)
+    incidente_actualizado = incidente_form.model_dump(exclude_unset=True)
+    incidente.sqlmodel_update(incidente_actualizado)
+
+    session.add(incidente)
+    session.commit()
+    session.refresh(incidente)
+    incidente_respuesta = IncidentePublico.from_orm(incidente)
+    registrar_accion(
+        session, CLASE_INCIDENTE, incidente.id, ACCION_ACTUALIZACION, incidente.json()
+    )
+    return incidente_respuesta
+
+@router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
+def eliminar_incidente(id, session: Session = Depends(get_session)):
+    eliminar_por_id(Incidente, id, session)
+    registrar_accion(session, CLASE_INCIDENTE, id, ACCION_ELIMINACION, "")
