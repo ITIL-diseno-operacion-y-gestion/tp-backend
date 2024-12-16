@@ -13,7 +13,7 @@ from ..modelo.reporte import (
     ReportesIncidentes,
 )
 from ..modelo.articulo import Articulo
-from ..modelo.cambio import Cambio
+from ..modelo.cambio import Cambio, Categoria
 from ..modelo.incidente import Incidente
 from ..modelo.problema import Problema
 from ..modelo.problema_incidente_link import ProblemaIncidenteLink
@@ -21,13 +21,24 @@ from ..modelo.error_conocido import ErrorConocido
 from typing import Optional
 from datetime import date, datetime, timedelta
 from collections import Counter
+from api.modelo.articulo import Tipo as TipoArticulo, Estado as EstadoArticulo
+from api.modelo.cambio import Estado as EstadoCambio, Prioridad as PrioridadCambio, Categoria as CategoriaCambio
+from api.enums.prioridad import Prioridad
+from api.enums.categoria import Categoria
+from api.enums.estado import Estado
 
 
 router = APIRouter(
     prefix="/reportes",
     tags=["Reportes"],
 )
-
+def setearCamposPendientesEnCero(mapa, keys):
+    print("mapa vale: ", mapa)
+    for key in keys:
+        print("me fijo si en el mapa esta: ", key)
+        if (key not in mapa):
+            print("NOOO en el mapa NO esta: ", key)
+            mapa[key] = 0
 
 def crear_reporte_articulos(desde, hasta, session):
     query = select(Articulo)
@@ -37,11 +48,13 @@ def crear_reporte_articulos(desde, hasta, session):
         query = query.where(Articulo.fecha_de_alta <= hasta)
     articulos = session.exec(query).all()
 
-    reporte_articulos = ReporteArticulos()
-    reporte_articulos.tipo = Counter(articulo.tipo for articulo in articulos)
-    reporte_articulos.estado = Counter(articulo.estado for articulo in articulos)
-    reporte_articulos.total = len(articulos)
-    return reporte_articulos
+    reporteArticulos = ReporteArticulos()
+    reporteArticulos.tipo = Counter(articulo.tipo for articulo in articulos)
+    setearCamposPendientesEnCero(reporteArticulos.tipo, TipoArticulo)
+    reporteArticulos.estado = Counter(articulo.estado for articulo in articulos)
+    setearCamposPendientesEnCero(reporteArticulos.estado, EstadoArticulo)
+    reporteArticulos.total = len(articulos)
+    return reporteArticulos
 
 
 def crear_reporte_cambios(desde, hasta, session):
@@ -52,15 +65,18 @@ def crear_reporte_cambios(desde, hasta, session):
         query = query.where(Cambio.fecha_de_creacion <= hasta)
     cambios = session.exec(query).all()
 
-    reporte_cambios = ReporteCambios()
-    reporte_cambios.estado = Counter(cambio.estado for cambio in cambios)
-    reporte_cambios.prioridad = Counter(cambio.prioridad for cambio in cambios)
-    reporte_cambios.categoria = Counter(cambio.categoria for cambio in cambios)
-    reporte_cambios.articulo = Counter(
+    reporteCambios = ReporteCambios()
+    reporteCambios.estado = Counter(cambio.estado for cambio in cambios)
+    setearCamposPendientesEnCero(reporteCambios.estado, EstadoCambio)
+    reporteCambios.prioridad = Counter(cambio.prioridad for cambio in cambios)
+    setearCamposPendientesEnCero(reporteCambios.prioridad, PrioridadCambio)
+    reporteCambios.categoria = Counter(cambio.categoria for cambio in cambios)
+    setearCamposPendientesEnCero(reporteCambios.categoria, CategoriaCambio)
+    reporteCambios.articulo = Counter(
         articulo.id for cambio in cambios for articulo in cambio.articulos_afectados
     )
-    reporte_cambios.total = len(cambios)
-    return reporte_cambios
+    reporteCambios.total = len(cambios)
+    return reporteCambios
 
 
 def obtener_conformidad_resolucion_promedio(incidentes):
@@ -84,23 +100,25 @@ def crear_reporte_incidentes(id_agente_asignado, desde, hasta, session):
         query = query.where(Incidente.id_agente_asignado == id_agente_asignado)
     incidentes = session.exec(query).all()
 
-    reporte_incidentes = ReporteIncidentes()
-    reporte_incidentes.prioridad = Counter(
+    reporteIncidentes = ReporteIncidentes()
+    reporteIncidentes.prioridad = Counter(
         incidente.prioridad for incidente in incidentes
     )
-    reporte_incidentes.categoria = Counter(
+    setearCamposPendientesEnCero(reporteIncidentes.prioridad, Prioridad)
+    reporteIncidentes.categoria = Counter(
         incidente.categoria for incidente in incidentes
     )
-    reporte_incidentes.articulo = Counter(
+    setearCamposPendientesEnCero(reporteIncidentes.categoria, Categoria)
+    reporteIncidentes.articulo = Counter(
         articulo.id
         for incidente in incidentes
         for articulo in incidente.articulos_afectados
     )
-    reporte_incidentes.conformidad_resolucion_promedio = (
+    reporteIncidentes.conformidad_resolucion_promedio = (
         obtener_conformidad_resolucion_promedio(incidentes)
     )
-    reporte_incidentes.total = len(incidentes)
-    return reporte_incidentes
+    reporteIncidentes.total = len(incidentes)
+    return reporteIncidentes
 
 
 FORMATO_FECHA = "%Y-%m-%d %H:%M:%S.%f"
@@ -156,23 +174,25 @@ def crear_reporte_problemas(id_agente_asignado, desde, hasta, session):
             .where(Incidente.id_agente_asignado == id_agente_asignado)
         )
     problemas = session.exec(query).all()
-    reporte_problemas = ReporteProblemas()
-    reporte_problemas.categoria = Counter(problema.categoria for problema in problemas)
-    reporte_problemas.estado = Counter(problema.estado for problema in problemas)
-    reporte_problemas.incidente = Counter(
+    reporteProblemas = ReporteProblemas()
+    reporteProblemas.categoria = Counter(problema.categoria for problema in problemas)
+    setearCamposPendientesEnCero(reporteProblemas.categoria, Categoria)
+    reporteProblemas.estado = Counter(problema.estado for problema in problemas)
+    setearCamposPendientesEnCero(reporteProblemas.estado, Estado)
+    reporteProblemas.incidente = Counter(
         incidente.id for problema in problemas for incidente in problema.incidentes
     )
 
-    reporte_problemas.tiempo_promedio_resolucion = (
+    reporteProblemas.tiempo_promedio_resolucion = (
         obtener_tiempo_promedio_de_resolucion(problemas)
     )
     print(
-        "reporte_problemas.tiempo_promedio_resolucion: ",
-        reporte_problemas.tiempo_promedio_resolucion,
+        "reporteProblemas.tiempo_promedio_resolucion: ",
+        reporteProblemas.tiempo_promedio_resolucion,
     )
-    reporte_problemas.total = len(problemas)
+    reporteProblemas.total = len(problemas)
 
-    return reporte_problemas
+    return reporteProblemas
 
 
 def crear_reporte_errores(desde, hasta, session):
