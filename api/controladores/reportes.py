@@ -13,7 +13,7 @@ from ..modelo.reporte import (
     ReportesIncidentes,
 )
 from ..modelo.articulo import Articulo
-from ..modelo.cambio import Cambio
+from ..modelo.cambio import Cambio, Categoria
 from ..modelo.incidente import Incidente
 from ..modelo.problema import Problema
 from ..modelo.problema_incidente_link import ProblemaIncidenteLink
@@ -21,13 +21,24 @@ from ..modelo.error_conocido import ErrorConocido
 from typing import Optional
 from datetime import date, datetime, timedelta
 from collections import Counter
+from api.modelo.articulo import Tipo as TipoArticulo, Estado as EstadoArticulo
+from api.modelo.cambio import Estado as EstadoCambio, Prioridad as PrioridadCambio, Categoria as CategoriaCambio
+from api.enums.prioridad import Prioridad
+from api.enums.categoria import Categoria
+from api.enums.estado import Estado
 
 
 router = APIRouter(
     prefix="/reportes",
     tags=["reportes"],
 )
-
+def setearCamposPendientesEnCero(mapa, keys):
+    print("mapa vale: ", mapa)
+    for key in keys:
+        print("me fijo si en el mapa esta: ", key)
+        if (key not in mapa):
+            print("NOOO en el mapa NO esta: ", key)
+            mapa[key] = 0
 
 def crearReporteArticulos(desde, hasta, session):
     query = select(Articulo)
@@ -39,7 +50,9 @@ def crearReporteArticulos(desde, hasta, session):
 
     reporteArticulos = ReporteArticulos()
     reporteArticulos.tipo = Counter(articulo.tipo for articulo in articulos)
+    setearCamposPendientesEnCero(reporteArticulos.tipo, TipoArticulo)
     reporteArticulos.estado = Counter(articulo.estado for articulo in articulos)
+    setearCamposPendientesEnCero(reporteArticulos.estado, EstadoArticulo)
     reporteArticulos.total = len(articulos)
     return reporteArticulos
 
@@ -54,8 +67,11 @@ def crearReporteCambios(desde, hasta, session):
 
     reporteCambios = ReporteCambios()
     reporteCambios.estado = Counter(cambio.estado for cambio in cambios)
+    setearCamposPendientesEnCero(reporteCambios.estado, EstadoCambio)
     reporteCambios.prioridad = Counter(cambio.prioridad for cambio in cambios)
+    setearCamposPendientesEnCero(reporteCambios.prioridad, PrioridadCambio)
     reporteCambios.categoria = Counter(cambio.categoria for cambio in cambios)
+    setearCamposPendientesEnCero(reporteCambios.categoria, CategoriaCambio)
     reporteCambios.articulo = Counter(
         articulo.id for cambio in cambios for articulo in cambio.articulos_afectados
     )
@@ -88,9 +104,13 @@ def crearReporteIncidentes(id_agente_asignado, desde, hasta, session):
     reporteIncidentes.prioridad = Counter(
         incidente.prioridad for incidente in incidentes
     )
+    print("reporteIncidentes.prioridad: ", reporteIncidentes.prioridad)
+    setearCamposPendientesEnCero(reporteIncidentes.prioridad, Prioridad)
     reporteIncidentes.categoria = Counter(
         incidente.categoria for incidente in incidentes
     )
+    print("Categoria vale: ", Prioridad)
+    setearCamposPendientesEnCero(reporteIncidentes.categoria, Categoria)
     reporteIncidentes.articulo = Counter(
         articulo.id
         for incidente in incidentes
@@ -158,7 +178,9 @@ def crearReporteProblemas(id_agente_asignado, desde, hasta, session):
     problemas = session.exec(query).all()
     reporteProblemas = ReporteProblemas()
     reporteProblemas.categoria = Counter(problema.categoria for problema in problemas)
+    setearCamposPendientesEnCero(reporteProblemas.categoria, Categoria)
     reporteProblemas.estado = Counter(problema.estado for problema in problemas)
+    setearCamposPendientesEnCero(reporteProblemas.estado, Estado)
     reporteProblemas.incidente = Counter(
         incidente.id for problema in problemas for incidente in problema.incidentes
     )
