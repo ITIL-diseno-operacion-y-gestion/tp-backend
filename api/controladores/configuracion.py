@@ -19,11 +19,6 @@ router = APIRouter(
 CLASE_ARTICULO = "articulo"
 
 
-@router.get("/articulos/{id}")
-def obtener_articulo_por_id(id, session: Session = Depends(get_session)):
-    return obtener_por_id(Articulo, id, session)
-
-
 @router.get("/articulos")
 def obtener_articulos(
     nombre: str | None = None, session: Session = Depends(get_session)
@@ -52,15 +47,9 @@ def crear_articulo(
     return articulo_respuesta
 
 
-@router.delete("/articulos/{id}", status_code=status.HTTP_204_NO_CONTENT)
-def dar_de_baja_articulo_por_id(id, session: Session = Depends(get_session)):
-    articulo = obtener_por_id(Articulo, id, session)
-    articulo.esta_activo = False
-    session.add(articulo)
-    session.commit()
-    session.refresh(articulo)
-    registrar_accion(session, CLASE_ARTICULO, id, ACCION_ELIMINACION, articulo.json())
-    return articulo
+@router.get("/articulos/{id}")
+def obtener_articulo(id, session: Session = Depends(get_session)):
+    return obtener_por_id(Articulo, id, session)
 
 
 @router.patch("/articulos/{id}")
@@ -78,3 +67,14 @@ def actualizar_articulo(
         session, CLASE_ARTICULO, articulo.id, ACCION_ACTUALIZACION, articulo.json()
     )
     return articulo_respuesta
+
+
+@router.delete("/articulos/{id}", status_code=status.HTTP_204_NO_CONTENT)
+def dar_de_baja_articulo(id, session: Session = Depends(get_session)):
+    articulo = obtener_por_id(Articulo, id, session)
+    articulo.esta_activo = False
+    session.add(articulo)
+    session.commit()
+    session.refresh(articulo)
+    registrar_accion(session, CLASE_ARTICULO, id, ACCION_ELIMINACION, articulo.json())
+    return articulo

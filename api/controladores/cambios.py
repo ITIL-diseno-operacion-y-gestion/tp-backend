@@ -20,17 +20,6 @@ router = APIRouter(
 CLASE_CAMBIO = "cambio"
 
 
-@router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
-def eliminar_cambio_por_id(id, session: Session = Depends(get_session)):
-    eliminar_por_id(Cambio, id, session)
-    registrar_accion(session, CLASE_CAMBIO, id, ACCION_ELIMINACION, "")
-
-
-@router.get("/{id}", response_model=CambioPublico)
-def obtener_cambio_por_id(id, session: Session = Depends(get_session)):
-    return obtener_por_id(Cambio, id, session)
-
-
 @router.get("")
 def obtener_cambios(session: Session = Depends(get_session)):
     cambios = session.exec(select(Cambio)).all()
@@ -66,6 +55,11 @@ def crear_cambio(cambio_form: CambioForm, session: Session = Depends(get_session
     return cambio
 
 
+@router.get("/{id}", response_model=CambioPublico)
+def obtener_cambio(id, session: Session = Depends(get_session)):
+    return obtener_por_id(Cambio, id, session)
+
+
 @router.patch("/{id}")
 def actualizar_cambio(
     id, cambio_form: CambioUpdateForm, session: Session = Depends(get_session)
@@ -82,3 +76,9 @@ def actualizar_cambio(
         session, CLASE_CAMBIO, cambio.id, ACCION_ACTUALIZACION, cambio.json()
     )
     return cambio_respuesta
+
+
+@router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
+def eliminar_cambio(id, session: Session = Depends(get_session)):
+    eliminar_por_id(Cambio, id, session)
+    registrar_accion(session, CLASE_CAMBIO, id, ACCION_ELIMINACION, "")

@@ -5,17 +5,17 @@ from ..modelo.auditoria import Auditoria
 
 router = APIRouter(
     prefix="/auditorias",
-    tags=["auditorias"],
+    tags=["Auditorías"],
 )
 
 
 @router.get("")
-def obtener_usuarios(session: Session = Depends(get_session)):
+def obtener_auditorias(session: Session = Depends(get_session)):
     return session.exec(select(Auditoria)).all()
 
 
 @router.get("/{id}")
-def obtener_usuarios(id, entidad: str, session: Session = Depends(get_session)):
+def obtener_auditoria(id, entidad: str, session: Session = Depends(get_session)):
     query = select(Auditoria)
     query = query.where(Auditoria.clase_entidad == entidad)
     query = query.where(Auditoria.id_entidad == id)

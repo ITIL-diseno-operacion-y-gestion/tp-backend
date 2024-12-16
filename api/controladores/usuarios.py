@@ -7,7 +7,6 @@ from ..modelo.usuario import (
     UsuarioForm,
     UsuarioLoginForm,
     UsuarioLoginRespuesta,
-    ROLES_VALIDOS,
 )
 from ..modelo.auditoria import registrar_accion, ACCION_CREACION, ACCION_ELIMINACION
 import secrets
@@ -21,12 +20,6 @@ router = APIRouter(
 )
 
 
-@router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
-def eliminar_usuario_por_id(id, session: Session = Depends(get_session)):
-    eliminar_por_id(Usuario, id, session)
-    registrar_accion(session, CLASE_USUARIO, id, ACCION_ELIMINACION, "")
-
-
 @router.get("", response_model=list[UsuarioPublico])
 def obtener_usuarios(session: Session = Depends(get_session)):
     print("entre a obtener_usuarios")
@@ -37,11 +30,6 @@ def obtener_usuarios(session: Session = Depends(get_session)):
 @router.post("")
 def crear_usuario(usuario_form: UsuarioForm, session: Session = Depends(get_session)):
     usuario = Usuario.model_validate(usuario_form)
-    if usuario.rol not in ROLES_VALIDOS:
-        raise HTTPException(
-            status_code=422,
-            detail="rol invalido",
-        )
     session.add(usuario)
     session.commit()
     session.refresh(usuario)
@@ -63,7 +51,7 @@ def generar_random_token(length=32):
 
 
 @router.post("/login")
-def login_usuario(
+def logear_usuario(
     usuario_form: UsuarioLoginForm, session: Session = Depends(get_session)
 ):
     usuario = session.exec(
@@ -84,3 +72,9 @@ def login_usuario(
         token=generar_random_token(),
         rol=usuario.rol,
     )
+
+
+@router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
+def eliminar_usuario(id, session: Session = Depends(get_session)):
+    eliminar_por_id(Usuario, id, session)
+    registrar_accion(session, CLASE_USUARIO, id, ACCION_ELIMINACION, "")
