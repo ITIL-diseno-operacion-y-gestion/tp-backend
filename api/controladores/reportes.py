@@ -75,8 +75,8 @@ def crear_reporte_cambios(desde, hasta, session):
     reporteCambios.articulo = Counter(
         articulo.id for cambio in cambios for articulo in cambio.articulos_afectados
     )
-    reporte_cambios.total = len(cambios)
-    return reporte_cambios
+    reporteCambios.total = len(cambios)
+    return reporteCambios
 
 
 def obtener_conformidad_resolucion_promedio(incidentes):
@@ -100,8 +100,8 @@ def crear_reporte_incidentes(id_agente_asignado, desde, hasta, session):
         query = query.where(Incidente.id_agente_asignado == id_agente_asignado)
     incidentes = session.exec(query).all()
 
-    reporte_incidentes = ReporteIncidentes()
-    reporte_incidentes.prioridad = Counter(
+    reporteIncidentes = ReporteIncidentes()
+    reporteIncidentes.prioridad = Counter(
         incidente.prioridad for incidente in incidentes
     )
     setearCamposPendientesEnCero(reporteIncidentes.prioridad, Prioridad)
@@ -114,11 +114,11 @@ def crear_reporte_incidentes(id_agente_asignado, desde, hasta, session):
         for incidente in incidentes
         for articulo in incidente.articulos_afectados
     )
-    reporte_incidentes.conformidad_resolucion_promedio = (
+    reporteIncidentes.conformidad_resolucion_promedio = (
         obtener_conformidad_resolucion_promedio(incidentes)
     )
-    reporte_incidentes.total = len(incidentes)
-    return reporte_incidentes
+    reporteIncidentes.total = len(incidentes)
+    return reporteIncidentes
 
 
 FORMATO_FECHA = "%Y-%m-%d %H:%M:%S.%f"
@@ -183,16 +183,16 @@ def crear_reporte_problemas(id_agente_asignado, desde, hasta, session):
         incidente.id for problema in problemas for incidente in problema.incidentes
     )
 
-    reporte_problemas.tiempo_promedio_resolucion = (
+    reporteProblemas.tiempo_promedio_resolucion = (
         obtener_tiempo_promedio_de_resolucion(problemas)
     )
     print(
-        "reporte_problemas.tiempo_promedio_resolucion: ",
-        reporte_problemas.tiempo_promedio_resolucion,
+        "reporteProblemas.tiempo_promedio_resolucion: ",
+        reporteProblemas.tiempo_promedio_resolucion,
     )
-    reporte_problemas.total = len(problemas)
+    reporteProblemas.total = len(problemas)
 
-    return reporte_problemas
+    return reporteProblemas
 
 
 def crear_reporte_errores(desde, hasta, session):
